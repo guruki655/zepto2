@@ -3,7 +3,7 @@ const router = express.Router();
 const User = require('../models/userModel');
 const jwt = require('jsonwebtoken');
 const bcrypt = require('bcryptjs');
-
+const OTP = require('../models/otpModel');
 // Login Route
 router.post('/login', async (req, res) => {
     try {
@@ -93,4 +93,43 @@ router.post('/register', async (req, res) => {
     }
 });
 
+// Send OTP route
+router.post('/send-otp', async (req, res) => {
+    const { phone } = req.body;
+    const otp = Math.floor(100000 + Math.random() * 900000).toString();
+
+    try {
+        const otpRecord = new OTP({ phone, otp });
+        await otpRecord.save();
+
+        // Here you would integrate your SMS service to send the OTP
+        res.status(200).json({ message: 'OTP sent successfully' });
+    } catch (err) {
+        res.status(500).json({ message: 'Failed to send OTP' });
+    }
+});
+
+// Verify OTP route
+router.post('/verify-otp', async (req, res) => {
+    const { phone, otp } = req.body;
+
+    try {
+        const otpRecord = await OTP.findOne({ phone, otp });
+        if (!otpRecord) {
+            return res.status(400).json({ success: false, message: 'Invalid OTP' });
+        }
+        
+        res.status(200).json({ success: true, message: 'OTP verified successfully' });
+    } catch (err) {
+        res.status(500).json({ message: 'Error verifying OTP' });
+    }
+});
+
+// Forgot Password
+router.post('/forgot-password', async (req, res) => {
+    const { email } = req.body;
+    // Lookup user, send email with reset link/token (mocked here)
+    res.json({ message: 'Reset link sent to your email (mock)' });
+  });
+    
 module.exports = router;

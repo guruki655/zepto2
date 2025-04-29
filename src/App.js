@@ -7,6 +7,8 @@ import Register from './components/Register.js';
 import Home from './pages/Home.js';
 import Navbar from './components/navbar.js';
 import {BrowserRouter,Routes,Route} from 'react-router-dom'
+import ProductPage from '../src/components/productPage.js';
+import ForgotPassword from './pages/forgotPassword.js';
 
 
 function App() {
@@ -20,11 +22,12 @@ function App() {
       <Routes>
       <Route path="/" element={<Home />} />
       <Route path="/Home" element={<Home />} />
-      <Route path="/Navbar" element={<Navbar />} />
+      <Route path="/product/:id" element={<ProductPage />} />       <Route path="/Navbar" element={<Navbar />} />
         <Route path="/AdminDashboard" element={<AdminDashboard/>}/>
         <Route path="/VendorDashboard" element={<VendorDashboard/>}/>
         <Route path="/Register" element={<Register />} />
         <Route path="/Login" element={<Login />} />
+        <Route path="/ForgotPassword" element={<ForgotPassword />} />
       </Routes>
       </BrowserRouter>
     </div>

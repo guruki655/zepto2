@@ -31,7 +31,7 @@ router.post('/', upload.single('ProductImage'), async (req, res) => {
         const { 
             ProductID, ProductName, ProductDescription, 
             ProductLocation, ProductPrice, ProductQuantity, 
-            ProductType, ProductWeight, ProductShelf, 
+            ProductType, ProductSubType,ProductWeight, ProductShelf, 
             ProductBrand, ProductMaterial 
         } = req.body;
 
@@ -45,6 +45,7 @@ router.post('/', upload.single('ProductImage'), async (req, res) => {
             ProductPrice,
             ProductQuantity,
             ProductType,
+            ProductSubType,
             ProductWeight,
             ProductShelf,
             ProductBrand,
@@ -92,4 +93,17 @@ router.delete('/:id', async (req, res) => {
     }
 });
 
+// Change this route to match your model and endpoint
+router.get('/:id', async (req, res) => {
+    try {
+      const frontEndId = req.params.id; // Get the ProductID from the URL
+      const product = await Customer.findOne({ ProductID: frontEndId }); // Query by ProductID
+      if (!product) {
+        return res.status(404).json({ message: 'Product not found' });
+      }
+      res.json(product);
+    } catch (error) {
+      res.status(500).json({ message: error.message });
+    }
+  });
 module.exports = router;

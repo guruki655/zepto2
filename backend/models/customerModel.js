@@ -8,7 +8,7 @@ const CustomerSchema = new mongoose.Schema({
     ProductPrice: { type: String, required: true },
     ProductQuantity: { type: String, required: true },
     ProductType: { type: String, required: true },
-    ProductType: { type: String, required: true },
+    ProductSubType: { type: String, required: true },
     ProductWeight: { type: String, required: true },
     ProductShelf: { type: String, required: true },
     ProductBrand: { type: String, required: true },

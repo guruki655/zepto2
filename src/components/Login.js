@@ -60,6 +60,9 @@ function Login() {
           <div className="d-grid">
             <button type="submit" className="btn btn-primary">Login</button>
           </div>
+          <div className="text-center mt-3">
+  <a href="/ForgotPassword" className="text-primary">Forgot Password?</a>
+</div>
         </form>
       </div>
     </div>

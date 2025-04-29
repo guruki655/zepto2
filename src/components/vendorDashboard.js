@@ -11,6 +11,7 @@ function VendorDashboard() {
         ProductPrice: '',
         ProductQuantity: '',
         ProductType: '',
+        ProductSubType:'',
         ProductWeight: '',
         ProductShelf: '',
         ProductBrand: '',
@@ -67,6 +68,7 @@ function VendorDashboard() {
                 ProductPrice: '',
                 ProductQuantity: '',
                 ProductType: '',
+                ProductSubType: '',
                 ProductWeight: '',
                 ProductShelf: '',
                 ProductBrand: '',
@@ -106,7 +108,29 @@ function VendorDashboard() {
                 <input name="ProductLocation" placeholder="Location" value={formData.ProductLocation} onChange={handleChange} />
                 <input name="ProductPrice" placeholder="Price" value={formData.ProductPrice} onChange={handleChange} />
                 <input name="ProductQuantity" placeholder="Quantity" value={formData.ProductQuantity} onChange={handleChange} />
-                <input name="ProductType" placeholder="Type" value={formData.ProductType} onChange={handleChange} />
+                
+                
+                <select
+  name="ProductType"
+  value={formData.ProductType}
+  onChange={handleChange}
+>
+  <option value="">Select Type</option>
+  <option value="Cafe">Cafe</option>
+  <option value="Toys">Toys</option>
+  <option value="Electronics">Electronics</option>
+  <option value="Jewellery">Jewellery</option>
+  <option value="FrozenFood">FrozenFood</option>
+  <option value="IceCream">IceCream</option>
+  <option value="PackagedFood">PackagedFood</option>
+  <option value="Skincare">Skincare</option>
+  <option value="HairCare">HairCare</option>
+  <option value="Baby">Baby</option>
+</select>
+
+<input name="ProductSubType" placeholder="SubType" value={formData.ProductSubType} onChange={handleChange} />
+
+
                 <input name="ProductWeight" placeholder="Weight" value={formData.ProductWeight} onChange={handleChange} />
                 <input name="ProductShelf" placeholder="Shelf" value={formData.ProductShelf} onChange={handleChange} />
                 <input name="ProductBrand" placeholder="Brand" value={formData.ProductBrand} onChange={handleChange} />
@@ -130,6 +154,7 @@ function VendorDashboard() {
                             <th>Price</th>
                             <th>Quantity</th>
                             <th>Type</th>
+                            <th>SubType</th>
                             <th>Weight</th>
                             <th>Shelf</th>
                             <th>Brand</th>
@@ -149,6 +174,7 @@ function VendorDashboard() {
                                 <td>{product.ProductPrice}</td>
                                 <td>{product.ProductQuantity}</td>
                                 <td>{product.ProductType}</td>
+                                <td>{product.ProductSubType}</td>
                                 <td>{product.ProductWeight}</td>
                                 <td>{product.ProductShelf}</td>
                                 <td>{product.ProductBrand}</td>

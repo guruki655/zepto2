@@ -20,8 +20,8 @@ mongoose.connect('mongodb://localhost:27017/zepto2', {
 
 // Use routes
 app.use('/api/auth', authRoutes);
-app.use('/api/vendors', vendorRoutes);  // Ensure this matches the route definition
-app.use('/api/customers', customerRoutes);  // Ensure this matches the route definition
+app.use('/api/vendors', vendorRoutes); 
+app.use('/api/customers', customerRoutes); 
 app.use('/uploads', express.static('uploads'));
 
 
