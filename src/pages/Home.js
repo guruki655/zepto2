@@ -18,9 +18,11 @@ import ZeptoAtta from '../images/zeptoAtta.png'
 import zetpoBanner from '../images/zeptoHomeBanner.webp'
 import zeptoEleBanner from '../images/zeptoEleBanner.webp'
 import zeptoBeautyBanner from '../images/zeptoBeautyBanner.webp'
+import { useCart } from '../contexts/cartContext'
 function Home() {
     const [selectedCategory, setSelectedCategory] = useState('All');
     const [products, setProducts] = useState([]);
+    const { addToCart } = useCart();
 
     useEffect(() => {
       fetchProducts();
@@ -147,6 +149,12 @@ function Home() {
                 <h5 className="card-title">{product.ProductName}</h5>
                 <p className="card-text">Brand: {product.ProductBrand}</p>
                 <p className="card-text">Price: ₹{product.ProductPrice}</p>
+                  <button 
+              className="btn btn-primary"
+              onClick={() => addToCart(product)}
+            >
+              Add to Cart
+            </button>
               </div>
             </div>
           </div>
@@ -257,6 +265,12 @@ Fresh
                 <h5 className="card-title">{product.ProductName}</h5>
                 <p className="card-text">Brand: {product.ProductBrand}</p>
                 <p className="card-text">Price: ₹{product.ProductPrice}</p>
+                <button 
+            className="btn btn-primary"
+            onClick={() => addToCart(product)}
+          >
+            Add to Cart
+          </button>
               </div>
             </div>
           </div>

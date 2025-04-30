@@ -119,6 +119,7 @@ function VendorDashboard() {
   <option value="Cafe">Cafe</option>
   <option value="Toys">Toys</option>
   <option value="Electronics">Electronics</option>
+  <option value="Mobile">Mobile</option>
   <option value="Jewellery">Jewellery</option>
   <option value="FrozenFood">FrozenFood</option>
   <option value="IceCream">IceCream</option>

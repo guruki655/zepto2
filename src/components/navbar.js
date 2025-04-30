@@ -1,7 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import logo from '../images/zeptoLogo.svg';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate,Link } from 'react-router-dom';
 import axios from 'axios';
+import { useCart } from '../contexts/cartContext';
 
 function Navbar() {
   const [showDropdown, setShowDropdown] = useState(false);
@@ -10,6 +11,7 @@ function Navbar() {
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [showSearchDropdown, setShowSearchDropdown] = useState(false);
+  const { cartCount } = useCart();
 
   const navigate = useNavigate();
 
@@ -137,8 +139,22 @@ function Navbar() {
               </div>
             )}
           </div>
-          <div className='col-lg-1'>
-            Cart
+          <div className='col-lg-1 position-relative'>
+            <Link to="/cart" className="text-decoration-none text-dark">
+              <i 
+                className="fa fa-shopping-cart fa-2x" 
+                aria-hidden="true"
+                style={{ cursor: 'pointer' }}
+              ></i>
+              {cartCount > 0 && (
+                <span 
+                  className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
+                  style={{ fontSize: '0.6rem' }}
+                >
+                  {cartCount}
+                </span>
+              )}
+            </Link>
           </div>
         </div>
       </div>
