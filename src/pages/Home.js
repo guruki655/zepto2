@@ -41,6 +41,28 @@ function Home() {
     const BabyProducts = products.filter(
       (product) => product.ProductType === 'Baby'
     );
+    const toyProducts = products.filter(
+      (product) => product.ProductType === 'Toys'
+    );
+    const fashionProducts = products.filter(
+      (product) => product.ProductType === 'Fashion'
+    );
+    const cafeProducts = products.filter(
+      (product) => product.ProductType === 'Cafe'
+    );
+    
+    const homeProducts = products.filter(
+      (product) => product.ProductType === 'Home'
+    );
+    
+    const mobileProducts = products.filter(
+      (product) => product.ProductType === 'Mobiles'
+    );
+    
+    const beautyProducts = products.filter(
+      (product) => product.ProductType === 'Beauty'
+    );
+    
   return (
     <div  className='shadow-lg'>
       <div className='container-fluid shadow-lg'>
@@ -104,28 +126,109 @@ function Home() {
   </div>
       )}
 
-      {selectedCategory=='Cafe'&&(
-<div className='col-lg-12'>
-    cafe
+{(selectedCategory === 'Cafe' || selectedCategory === 'All') && (
+  <>
+    <div className='col-lg-12 mb-4'>
+      <h2>Cafe Products</h2>
     </div>
 
+    {cafeProducts.length > 0 ? (
+      <div className="row">
+        {cafeProducts.map((product) => (
+          <div key={product._id} className="col-lg-3">
+            <div className="card h-100">
+              <img
+                src={`data:image/png;base64,${product.ProductImage}`}
+                className="card-img-top"
+                alt={product.ProductName}
+                style={{ height: '200px', objectFit: 'cover' }}
+              />
+              <div className="card-body">
+                <h5 className="card-title">{product.ProductName}</h5>
+                <p className="card-text">Brand: {product.ProductBrand}</p>
+                <p className="card-text">Price: ₹{product.ProductPrice}</p>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    ) : (
+      <div className="col-lg-12">
+        <p>No cafe products available.</p>
+      </div>
+    )}
+  </>
+)}
 
-      )}
 
-{selectedCategory=='Home'&&(
-<div className='col-lg-12'>
-Home
+{selectedCategory === 'Home' && (
+  <>
+    <div className='col-lg-12 mb-4'>
+      <h2>Home Products</h2>
     </div>
 
+    {homeProducts.length > 0 ? (
+      <div className="row">
+        {homeProducts.map((product) => (
+          <div key={product._id} className="col-lg-3">
+            <div className="card h-100">
+              <img
+                src={`data:image/png;base64,${product.ProductImage}`}
+                className="card-img-top"
+                alt={product.ProductName}
+                style={{ height: '200px', objectFit: 'cover' }}
+              />
+              <div className="card-body">
+                <h5 className="card-title">{product.ProductName}</h5>
+                <p className="card-text">Brand: {product.ProductBrand}</p>
+                <p className="card-text">Price: ₹{product.ProductPrice}</p>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    ) : (
+      <div className="col-lg-12">
+        <p>No home products available.</p>
+      </div>
+    )}
+  </>
+)}
 
-      )}
-         {selectedCategory=='Toys'&&(
-<div className='col-lg-12'>
-Toys
+{selectedCategory === 'Toys' && (
+  <>
+    <div className='col-lg-12 mb-4'>
+      <h2>Toy Products</h2>
     </div>
 
+    {toyProducts.length > 0 ? (
+      <div className="row">
+        {toyProducts.map((product) => (
+          <div key={product._id} className="col-lg-3">
+            <div className="card h-100">
+              <img
+                src={`data:image/png;base64,${product.ProductImage}`}
+                className="card-img-top"
+                alt={product.ProductName}
+                style={{ height: '200px', objectFit: 'cover' }}
+              />
+              <div className="card-body">
+                <h5 className="card-title">{product.ProductName}</h5>
+                <p className="card-text">Brand: {product.ProductBrand}</p>
+                <p className="card-text">Price: ₹{product.ProductPrice}</p>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    ) : (
+      <div className="col-lg-12">
+        <p>No toy products available.</p>
+      </div>
+    )}
+  </>
+)}
 
-      )}
          {selectedCategory=='Fresh'&&(
 <div className='col-lg-12'>
 Fresh
@@ -133,7 +236,7 @@ Fresh
 
 
       )}
-     {selectedCategory === 'Electronics'&& (
+     {(selectedCategory === 'Electronics'|| selectedCategory === 'All')&& (
   <>
     <div className='col-lg-12 mb-4'>
       <h2>Electronics</h2>
@@ -169,27 +272,108 @@ Fresh
       
     
   
-         {selectedCategory=='Mobiles'&&(
-<div className='col-lg-12'>
-Mobiles
+      {selectedCategory === 'Mobiles' && (
+  <>
+    <div className='col-lg-12 mb-4'>
+      <h2>Mobiles</h2>
     </div>
 
+    {mobileProducts.length > 0 ? (
+      <div className="row">
+        {mobileProducts.map((product) => (
+          <div key={product._id} className="col-lg-3">
+            <div className="card h-100">
+              <img
+                src={`data:image/png;base64,${product.ProductImage}`}
+                className="card-img-top"
+                alt={product.ProductName}
+                style={{ height: '200px', objectFit: 'cover' }}
+              />
+              <div className="card-body">
+                <h5 className="card-title">{product.ProductName}</h5>
+                <p className="card-text">Brand: {product.ProductBrand}</p>
+                <p className="card-text">Price: ₹{product.ProductPrice}</p>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    ) : (
+      <div className="col-lg-12">
+        <p>No mobile products available.</p>
+      </div>
+    )}
+  </>
+)}
 
-      )}
-         {selectedCategory=='Beauty'&&(
-<div className='col-lg-12'>
-Beauty
+{selectedCategory === 'Beauty' && (
+  <>
+    <div className='col-lg-12 mb-4'>
+      <h2>Beauty</h2>
     </div>
 
+    {beautyProducts.length > 0 ? (
+      <div className="row">
+        {beautyProducts.map((product) => (
+          <div key={product._id} className="col-lg-3">
+            <div className="card h-100">
+              <img
+                src={`data:image/png;base64,${product.ProductImage}`}
+                className="card-img-top"
+                alt={product.ProductName}
+                style={{ height: '200px', objectFit: 'cover' }}
+              />
+              <div className="card-body">
+                <h5 className="card-title">{product.ProductName}</h5>
+                <p className="card-text">Brand: {product.ProductBrand}</p>
+                <p className="card-text">Price: ₹{product.ProductPrice}</p>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    ) : (
+      <div className="col-lg-12">
+        <p>No beauty products available.</p>
+      </div>
+    )}
+  </>
+)}
 
-      )}
-         {selectedCategory=='Fashion'&&(
-<div className='col-lg-12'>
-Fashion
+{selectedCategory === 'Fashion' && (
+  <>
+    <div className='col-lg-12 mb-4'>
+      <h2>Fashion Products</h2>
     </div>
 
+    {fashionProducts.length > 0 ? (
+      <div className="row">
+        {fashionProducts.map((product) => (
+          <div key={product._id} className="col-lg-3">
+            <div className="card h-100">
+              <img
+                src={`data:image/png;base64,${product.ProductImage}`}
+                className="card-img-top"
+                alt={product.ProductName}
+                style={{ height: '200px', objectFit: 'cover' }}
+              />
+              <div className="card-body">
+                <h5 className="card-title">{product.ProductName}</h5>
+                <p className="card-text">Brand: {product.ProductBrand}</p>
+                <p className="card-text">Price: ₹{product.ProductPrice}</p>
+              </div>
+            </div>
+          </div>
+        ))}
+      </div>
+    ) : (
+      <div className="col-lg-12">
+        <p>No fashion products available.</p>
+      </div>
+    )}
+  </>
+)}
 
-      )}
          {selectedCategory=='Deal'&&(
 <div className='col-lg-12'>
 Deal
@@ -198,7 +382,7 @@ Deal
 
       )}
 
-{selectedCategory === 'Baby' && (
+{(selectedCategory === 'Baby'|| selectedCategory === 'All') && (
   <>
     <div className='col-lg-12 mb-4'>
       <h2>Baby Products</h2>

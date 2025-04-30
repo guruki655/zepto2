@@ -7,9 +7,9 @@ function Register() {
     name: '',
     email: '',
     password: '',
-    role: '',  
-    phone: '', // Add phone for OTP
-    otp: '' // Add OTP for validation
+    role: '',
+    phone: '',
+    otp: ''
   });
 
   const [errors, setErrors] = useState({
@@ -21,7 +21,7 @@ function Register() {
     otp: ''
   });
 
-  const [isOTPVerified, setIsOTPVerified] = useState(false); // Flag to check if OTP is verified
+  const [isOTPVerified, setIsOTPVerified] = useState(false);
   const navigate = useNavigate();
 
   const handleChange = (e) => {
@@ -32,23 +32,19 @@ function Register() {
     let isValid = true;
     const newErrors = {};
 
-    // Validate name, email, password, and role only if OTP is verified
     if (isOTPVerified) {
       if (!formData.name) {
         newErrors.name = 'Name is required.';
         isValid = false;
       }
-
       if (!formData.email) {
         newErrors.email = 'Email is required.';
         isValid = false;
       }
-
       if (!formData.password) {
         newErrors.password = 'Password is required.';
         isValid = false;
       }
-
       if (!formData.role) {
         newErrors.role = 'Role is required.';
         isValid = false;
@@ -71,14 +67,15 @@ function Register() {
     return isValid;
   };
 
-  const handleSendOTP = async () => {
+  const handleSendOTP = async (isResend = false) => {
     if (!/^[6-9]\d{9}$/.test(formData.phone)) {
       alert('Enter a valid 10-digit phone number starting with 6-9.');
       return;
     }
     try {
       const response = await axios.post('http://localhost:5000/api/auth/send-otp', { phone: formData.phone });
-      alert('OTP sent successfully!');
+      alert(isResend ? 'OTP resent successfully!' : 'OTP sent successfully!');
+      setFormData({ ...formData, otp: '' }); // Clear previous OTP input
     } catch (err) {
       if (err.response && err.response.data && err.response.data.message === 'Phone number already registered') {
         alert('Phone number already registered!');
@@ -87,7 +84,11 @@ function Register() {
       }
     }
   };
-  
+
+  const handleResendOTP = () => {
+    handleSendOTP(true); // Call send OTP with resend flag
+  };
+
   const handleOTPValidation = async () => {
     try {
       const response = await axios.post('http://localhost:5000/api/auth/verify-otp', {
@@ -96,7 +97,7 @@ function Register() {
       });
 
       if (response.data.success) {
-        setIsOTPVerified(true); // OTP is correct, show the registration form
+        setIsOTPVerified(true);
         alert('OTP verified successfully!');
       } else {
         alert('Invalid OTP');
@@ -135,9 +136,8 @@ function Register() {
     <div className="register-container d-flex justify-content-center align-items-center">
       <div className="card p-4 shadow register-card">
         <h2 className="text-center mb-4">Register</h2>
-        
+
         {!isOTPVerified ? (
-          // OTP verification form
           <div>
             <div className="mb-3">
               <input
@@ -151,7 +151,7 @@ function Register() {
               />
               {errors.phone && <small className="text-danger">{errors.phone}</small>}
             </div>
-            <button type="button" className="btn btn-primary" onClick={handleSendOTP}>
+            <button type="button" className="btn btn-primary w-100 mb-2" onClick={handleSendOTP}>
               Send OTP
             </button>
 
@@ -167,12 +167,14 @@ function Register() {
               />
               {errors.otp && <small className="text-danger">{errors.otp}</small>}
             </div>
-            <button type="button" className="btn btn-success" onClick={handleOTPValidation}>
+            <button type="button" className="btn btn-success w-100 mb-2" onClick={handleOTPValidation}>
               Verify OTP
+            </button>
+            <button type="button" className="btn btn-secondary w-100" onClick={handleResendOTP}>
+              Resend OTP
             </button>
           </div>
         ) : (
-          // Registration form
           <form onSubmit={handleSubmit}>
             <div className="mb-3">
               <input
@@ -209,8 +211,6 @@ function Register() {
               />
               {errors.password && <small className="text-danger">{errors.password}</small>}
             </div>
-
-            {/* Role selection */}
             <div className="mb-4">
               <select
                 name="role"
@@ -226,7 +226,15 @@ function Register() {
               </select>
               {errors.role && <small className="text-danger">{errors.role}</small>}
             </div>
-
+            <div className="mb-3">
+              <input
+                type="text"
+                className="form-control"
+                value={formData.phone}
+                readOnly
+                disabled
+              />
+            </div>
             <div className="d-grid">
               <button type="submit" className="btn btn-success">Register</button>
             </div>
