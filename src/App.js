@@ -10,6 +10,7 @@ import ProductPage from '../src/components/productPage.js';
 import ForgotPassword from './pages/forgotPassword.js';
 import { CartProvider } from './contexts/cartContext.js';
 import Cart from './pages/cart.js';
+import PaymentComponent from './pages/payment.js';
 
 function App() {
   return (
@@ -28,6 +29,7 @@ function App() {
             <Route path="/Login" element={<Login />} />
             <Route path="/ForgotPassword" element={<ForgotPassword />} />
             <Route path="/cart" element={<Cart />} />
+            <Route path="/Payment" element={<PaymentComponent />} />
           </Routes>
         </CartProvider>
       </BrowserRouter>

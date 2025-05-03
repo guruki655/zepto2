@@ -4,11 +4,13 @@ const CartContext = createContext();
 
 export const CartProvider = ({ children }) => {
   const [cartItems, setCartItems] = useState([]);
+  const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   const addToCart = (product) => {
+    
     setCartItems((prevItems) => {
       const existingItem = prevItems.find(item => item.ProductID === product.ProductID);
-      const availableStock = parseInt(product.ProductQuantity); // from backend
+      const availableStock = parseInt(product.ProductQuantity); 
   
       if (existingItem) {
         if (existingItem.quantity >= availableStock) {

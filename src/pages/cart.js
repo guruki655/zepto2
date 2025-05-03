@@ -88,7 +88,7 @@ function Cart() {
                   </div>
                   <button 
                     className="btn btn-primary w-100 mt-3"
-                    onClick={() => alert('Proceeding to checkout')}
+                    onClick={() => navigate('/Payment')}
                   >
                     Proceed to Checkout
                   </button>
