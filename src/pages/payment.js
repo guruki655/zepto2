@@ -1,15 +1,21 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useCart } from '../contexts/cartContext';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 const PaymentComponent = () => {
   const { cartItems, cartTotal, clearCart } = useCart();
   const navigate = useNavigate();
-
   const [cardNumber, setCardNumber] = useState('');
   const [cardHolder, setCardHolder] = useState('');
   const [cvc, setCvc] = useState('');
   const [errors, setErrors] = useState({});
+  const [savedAddress, setSavedAddress] = useState(null);
+
+  useEffect(() => {
+    const address = JSON.parse(localStorage.getItem('userAddress'));
+    setSavedAddress(address || null);
+  }, []);
 
   const validateForm = () => {
     const newErrors = {};
@@ -24,69 +30,60 @@ const PaymentComponent = () => {
     e.preventDefault();
     if (!validateForm()) return;
 
-    const email = localStorage.getItem('email');;
-    if (!email) {
+    const email = localStorage.getItem('email');
+    if (!email || email === 'undefined') {
       alert('Please log in first.');
+      navigate('/Login');
       return;
     }
 
     const orderData = {
       email,
-      items: cartItems.map(item => ({
+      items: cartItems.map((item) => ({
         ProductName: item.ProductName,
         ProductPrice: parseFloat(item.ProductPrice),
         ProductQuantity: item.quantity,
       })),
       total: cartTotal,
+      address: savedAddress,
     };
 
-    try {
-      const response = await fetch('http://localhost:5000/api/customers/orders/save', {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify(orderData),
-      });
+    console.log('Sending order data:', orderData); // Add logging
 
-      if (response.ok) {
+    try {
+      const response = await axios.post('http://localhost:5000/api/customers/orders/save', orderData);
+      console.log('Order save response:', response.data); // Add logging
+
+      if (response.status === 201) {
         alert('Payment successful and order saved!');
         clearCart();
-        navigate('/orders'); // Redirect to order history
+        navigate('/orders');
       } else {
-        const errorData = await response.json();
-        alert(`Payment successful but failed to save order: ${errorData.message}`);
+        alert('Failed to save order: ' + response.data.message);
       }
     } catch (error) {
-      alert('An error occurred while saving the order.');
       console.error('Payment error:', error);
+      alert('An error occurred while saving the order: ' + (error.response?.data?.message || error.message));
     }
   };
 
   return (
     <div className="payment-container d-flex flex-column align-items-center" style={{ minHeight: '100vh', padding: '20px' }}>
-      {/* Credit Card Preview */}
+      {savedAddress && (
+        <div className="mb-3 text-start w-100" style={{ maxWidth: '350px' }}>
+          <h6>Delivery to:</h6>
+          <p>
+            {savedAddress.label}: {savedAddress.addressLine1}, {savedAddress.houseNo}, {savedAddress.building}
+            {savedAddress.landmark ? `, ${savedAddress.landmark}` : ''}
+          </p>
+        </div>
+      )}
+
       <div className="creditcard mb-4">
-        <div
-          className="thecard-modern shadow-lg text-white p-4"
-          style={{
-            background: 'linear-gradient(135deg, #1e90ff, #00bfff)',
-            borderRadius: '15px',
-            width: '350px',
-            height: '200px',
-          }}
-        >
+        <div className="thecard-modern shadow-lg text-white p-4" style={{ background: 'linear-gradient(135deg, #1e90ff, #00bfff)', borderRadius: '15px', width: '350px', height: '200px' }}>
           <div className="card-top d-flex justify-content-between align-items-center mb-3">
-            <div
-              className="chip"
-              style={{
-                width: '40px',
-                height: '30px',
-                background: '#d4af37',
-                borderRadius: '5px',
-              }}
-            ></div>
-            <div className="brand" style={{ fontSize: '24px', fontWeight: 'bold' }}>
-              VISA
-            </div>
+            <div className="chip" style={{ width: '40px', height: '30px', background: '#d4af37', borderRadius: '5px' }}></div>
+            <div className="brand" style={{ fontSize: '24px', fontWeight: 'bold' }}>VISA</div>
           </div>
           <div className="card-number mb-3" style={{ fontSize: '20px', letterSpacing: '2px' }}>
             **** **** **** {cardNumber.slice(-4) || '0000'}
@@ -104,7 +101,6 @@ const PaymentComponent = () => {
         </div>
       </div>
 
-      {/* Payment Form */}
       <div className="form p-3 mt-3 shadow bg-white rounded" style={{ width: '350px' }}>
         <form onSubmit={handleSubmit}>
           <label htmlFor="cardnumber" className="form-label">Card Number</label>
@@ -114,7 +110,7 @@ const PaymentComponent = () => {
             id="cardnumber"
             placeholder="1234 5678 9012 3456"
             value={cardNumber}
-            onChange={(e) => setCardNumber(e.target.value.replace(/\D/g, ''))} // Allow only digits
+            onChange={(e) => setCardNumber(e.target.value.replace(/\D/g, ''))}
           />
           {errors.cardNumber && <div className="text-danger small mt-1">{errors.cardNumber}</div>}
 
@@ -128,14 +124,6 @@ const PaymentComponent = () => {
             onChange={(e) => setCardHolder(e.target.value)}
           />
           {errors.cardHolder && <div className="text-danger small mt-1">{errors.cardHolder}</div>}
-
-          <label htmlFor="address" className="form-label mt-3">Address</label>
-          <textarea
-            className="form-control mb-3"
-            id="address"
-            placeholder="Enter your address"
-            rows={4}
-          ></textarea>
 
           <label htmlFor="exp" className="form-label mt-2">Expiration Date</label>
           <div className="date d-flex gap-2">
@@ -172,13 +160,11 @@ const PaymentComponent = () => {
                 maxLength="3"
                 placeholder="123"
                 value={cvc}
-                onChange={(e) => setCvc(e.target.value.replace(/\D/g, ''))} // Allow only digits
+                onChange={(e) => setCvc(e.target.value.replace(/\D/g, ''))}
               />
               {errors.cvc && <div className="text-danger small mt-1">{errors.cvc}</div>}
             </div>
-            <p style={{ fontSize: '12px' }}>
-              Three digits, usually found on the back of the card
-            </p>
+            <p style={{ fontSize: '12px' }}>Three digits, usually found on the back of the card</p>
           </div>
 
           <button type="submit" className="btn btn-success mt-3 w-100">Proceed</button>

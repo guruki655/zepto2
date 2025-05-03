@@ -1,69 +1,70 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import axios from 'axios';
 
 const OrderHistory = () => {
   const [orders, setOrders] = useState([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState(null);
-  const email = localStorage.getItem('email');
 
   useEffect(() => {
-    const fetchOrders = async () => {
-      if (!email || email === 'undefined') {
-        setError('Please log in to view your order history.');
-        setLoading(false);
-        return;
-      }
-
+    console.log("sajbdvasjdasjdbksha")
+    const fetchOrderHistory = async () => {
       try {
-        setLoading(true);
+        const email = localStorage.getItem('email');
+        console.log('Fetching order history for email:', email);
+        if (!email) {
+          setError('Please log in to view your order history.');
+          setLoading(false);
+          return;
+        }
+
         const response = await axios.get(`http://localhost:5000/api/customers/orders/history/${email}`);
-        console.log('Fetched orders:', response.data);
+        console.log('Order history response:', response.data);
         setOrders(response.data);
-        setError(null);
+        setLoading(false);
       } catch (err) {
-        console.error('Error fetching orders:', err.response ? err.response.data : err.message);
-        setError('Failed to load orders. Please try again later.');
-      } finally {
+        console.error('Error fetching order history:', err);
+        setError('Failed to fetch order history: ' + (err.response?.data?.message || err.message));
         setLoading(false);
       }
     };
 
-    fetchOrders();
-  }, [email]);
+    fetchOrderHistory();
+  }, []);
 
-  if (loading) return <div style={{ padding: '20px' }}>Loading orders...</div>;
-  if (error) return <div style={{ padding: '20px', color: 'red' }}>{error}</div>;
+  if (loading) return <div>Loading...</div>;
+  if (error) return <div className="alert alert-danger">{error}</div>;
 
   return (
-    <div style={{ padding: '20px' }}>
-      <h2>Your Orders</h2>
+    <div className="container mt-4">
+      <h2>Your Order History</h2>
       {orders.length === 0 ? (
-        <p>No orders found.</p>
+        <div className="alert alert-info">No orders found.</div>
       ) : (
-        orders.map((order, idx) => (
-          <div
-            key={order._id}
-            style={{
-              border: '1px solid #ccc',
-              padding: '15px',
-              marginBottom: '20px',
-              borderRadius: '10px',
-            }}
-          >
-            <h4>Order #{idx + 1} — ₹{order.total}</h4>
-            <p><small>{new Date(order.createdAt).toLocaleString()}</small></p>
-            <ul>
-              {order.items.map((item, i) => (
-                <li key={i}>
-                  {item.ProductName ? (
-                    `${item.ProductName} — ${item.ProductQuantity} pcs @ ₹${item.ProductPrice}`
-                  ) : (
-                    `Item ID: ${item._id} (Details not available)`
-                  )}
-                </li>
-              ))}
-            </ul>
+        orders.map((order) => (
+          <div key={order._id} className="card mb-3">
+            <div className="card-body">
+              <h5 className="card-title">Order ID: {order._id}</h5>
+              <p className="card-text">Total: ₹{order.total.toFixed(2)}</p>
+              <p className="card-text">Date: {new Date(order.createdAt).toLocaleString()}</p>
+              {order.address && (
+                <div>
+                  <h6>Delivery Address:</h6>
+                  <p>
+                    {order.address.label}: {order.address.addressLine1}, {order.address.houseNo}, {order.address.building}
+                    {order.address.landmark ? `, ${order.address.landmark}` : ''}
+                  </p>
+                </div>
+              )}
+              <h6>Items:</h6>
+              <ul>
+  {order.items.map((item, index) => (
+    <li key={index}>
+      {item.ProductName || "Unnamed Product"} - ₹{(item.ProductPrice?.toFixed(2) || "0.00")} x {item.ProductQuantity || 0}
+    </li>
+  ))}
+</ul>
+            </div>
           </div>
         ))
       )}

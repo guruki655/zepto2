@@ -4,6 +4,7 @@ const Customer = require('../models/customerModel');
 const multer = require('multer');
 const Order = require('../models/orderModel');
 const User = require('../models/userModel'); // Ensure you have the User model
+const jwt = require('jsonwebtoken');
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
@@ -114,7 +115,7 @@ router.get('/:id', async (req, res) => {
 // POST - Save order with user email
 router.post('/orders/save', async (req, res) => {
     try {
-      const { items, total, email } = req.body;
+      const { items, total, email, address } = req.body;
       console.log('Received order data:', req.body);
   
       const user = await User.findOne({ email });
@@ -122,8 +123,9 @@ router.post('/orders/save', async (req, res) => {
   
       const newOrder = new Order({
         user: user._id,
-        items: items, // Directly use the items array
+        items,
         total,
+        address,
         createdAt: new Date(),
       });
   
@@ -133,41 +135,92 @@ router.post('/orders/save', async (req, res) => {
     } catch (error) {
       console.error('Error saving order:', error);
       res.status(500).json({ message: 'Failed to save order' });
-    }
-  });
-  router.get('/orders/history/:email', async (req, res) => {
-    try {router.post('/orders/save', async (req, res) => {
-    try {
-      const { items, total, email } = req.body;
-      console.log('Received order data:', req.body);
-  
-      const user = await User.findOne({ email });
-      if (!user) return res.status(404).json({ message: 'User not found' });
-  
-      const newOrder = new Order({
-        user: user._id,
-        items: items, // Directly use the items array
-        total,
-        createdAt: new Date(),
-      });
-  
-      await newOrder.save();
-      console.log('Saved order:', newOrder);
-      res.status(201).json({ message: 'Order saved successfully', order: newOrder });
-    } catch (error) {
-      console.error('Error saving order:', error);
-      res.status(500).json({ message: 'Failed to save order' });
-    }
-  });
-      const user = await User.findOne({ email: req.params.email });
-      if (!user) return res.status(404).json({ message: 'User not found' });
-  
-      const orders = await Order.find({ user: user._id }).sort({ createdAt: -1 });
-      res.json(orders);
-    } catch (error) {
-      console.error('Error fetching order history:', error);
-      res.status(500).json({ message: 'Failed to fetch order history' });
     }
   });
 
+
+  router.get('/orders/history/:email', async (req, res) => {
+    try {
+      console.log('Fetching order history for email:', req.params.email);
+      // Case-insensitive email match
+      const user = await User.findOne({ email: { $regex: new RegExp(`^${req.params.email}$`, 'i') } });
+      if (!user) return res.status(404).json({ message: 'User not found' });
+  
+      console.log('Found user for order history:', user);
+      const orders = await Order.find({ user: user._id }).sort({ createdAt: -1 });
+      console.log('Retrieved orders:', orders);
+      res.json(orders);
+    } catch (error) {
+      console.error('Error fetching order history:', error);
+      res.status(500).json({ message: 'Failed to fetch order history', error: error.message });
+    }
+  });
+  //update adress
+  router.put('/users/update-address', async (req, res) => {
+    try {
+      console.log('Request body:', req.body);
+      console.log('Headers:', req.headers);
+  
+      const { address } = req.body;
+      if (!address) {
+        return res.status(400).json({ message: 'Address is required' });
+      }
+  
+      const requiredFields = ['addressLine1', 'houseNo', 'building'];
+      for (const field of requiredFields) {
+        if (!address[field]) {
+          return res.status(400).json({ message: `${field} is required` });
+        }
+      }
+  
+      const token = req.headers.authorization?.split(' ')[1];
+      if (!token) {
+        return res.status(401).json({ message: 'Authorization token missing' });
+      }
+  
+      let decoded;
+      try {
+        decoded = jwt.verify(token, 'gkr103055');
+      } catch (jwtErr) {
+        console.error('JWT verification error:', jwtErr);
+        return res.status(401).json({ message: 'Invalid or expired token' });
+      }
+      const userId = decoded.userId;
+      console.log('Decoded userId:', userId);
+  
+      const updatedUser = await User.findByIdAndUpdate(
+        userId,
+        { address },
+        { new: true }
+      );
+      if (!updatedUser) {
+        return res.status(404).json({ message: 'User not found' });
+      }
+  
+      console.log('Updated user:', updatedUser);
+      res.json({ message: 'Address updated successfully', user: updatedUser });
+    } catch (err) {
+      console.error('Error updating address:', err);
+      res.status(500).json({ message: 'Error updating address', error: err.message });
+    }
+  });
+
+  // GET - Fetch user's saved address
+router.get('/users/address', async (req, res) => {
+  try {
+    const token = req.headers.authorization?.split(' ')[1];
+    if (!token) return res.status(401).json({ message: 'Authorization token missing' });
+
+    const decoded = jwt.verify(token, 'gkr103055'); // Use your JWT secret
+    const userId = decoded.userId;
+
+    const user = await User.findById(userId);
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    res.json({ address: user.address || null });
+  } catch (err) {
+    console.error('Error fetching address:', err);
+    res.status(500).json({ message: 'Error fetching address', error: err.message });
+  }
+});
 module.exports = router;

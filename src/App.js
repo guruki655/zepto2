@@ -31,7 +31,7 @@ function App() {
             <Route path="/ForgotPassword" element={<ForgotPassword />} />
             <Route path="/cart" element={<Cart />} />
             <Route path="/Payment" element={<PaymentComponent />} />
-            <Route path="/ " element={<OrderHistory />} />
+            <Route path="/orders" element={<OrderHistory />} />
 
           </Routes>
         </CartProvider>

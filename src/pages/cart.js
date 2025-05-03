@@ -1,6 +1,7 @@
-import React from 'react';
+import React, { useState, useEffect } from 'react';
 import { useCart } from '../contexts/cartContext';
 import { useNavigate } from 'react-router-dom';
+import axios from 'axios';
 
 function Cart() {
   const {
@@ -9,22 +10,153 @@ function Cart() {
     removeFromCart,
     clearCart,
     cartTotal,
-    cartCount
+    cartCount,
   } = useCart();
-  
-  const navigate = useNavigate();
 
-  // Calculate discount (10% for example)
-  const discount = cartTotal * 0.1;
-  const totalAfterDiscount = cartTotal - discount;
+  const navigate = useNavigate();
+  const [showAddressModal, setShowAddressModal] = useState(false);
+  const [useSavedAddress, setUseSavedAddress] = useState(true);
+  const [savedAddress, setSavedAddress] = useState(null);
+  const [newAddress, setNewAddress] = useState({
+    addressLine1: '',
+    houseNo: '',
+    building: '',
+    landmark: '',
+    label: 'Home',
+  });
+  const [couponCode, setCouponCode] = useState('');
+  const [appliedCoupon, setAppliedCoupon] = useState(null);
+  const [couponError, setCouponError] = useState('');
+
+  // Available coupons
+  const availableCoupons = [
+    {
+      code: 'NEW100',
+      discount: 100,
+      minPurchase: 150,
+      description: 'Get ₹100 off on orders above ₹150'
+    }
+  ];
+
+  // Calculate discounts
+  const baseDiscount = cartTotal * 0.1; // Existing 10% discount
+  const couponDiscount = appliedCoupon ? appliedCoupon.discount : 0;
+  const totalAfterDiscount = cartTotal - baseDiscount - couponDiscount;
+
+  // Fetch saved address when component mounts
+  useEffect(() => {
+    const fetchSavedAddress = async () => {
+      try {
+        const token = localStorage.getItem('token');
+        if (!token) return;
+
+        const response = await axios.get('http://localhost:5000/api/customers/users/address', {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        console.log('Fetched saved address:', response.data);
+        setSavedAddress(response.data.address);
+      } catch (err) {
+        console.error('Error fetching saved address:', err);
+        const localAddress = JSON.parse(localStorage.getItem('userAddress'));
+        if (localAddress) setSavedAddress(localAddress);
+      }
+    };
+
+    fetchSavedAddress();
+  }, []);
+
+  const handleAddressChange = (e) => {
+    const { name, value } = e.target;
+    setNewAddress((prev) => ({ ...prev, [name]: value }));
+  };
+
+  const handleApplyCoupon = () => {
+    setCouponError('');
+    
+    if (!couponCode) {
+      setCouponError('Please enter a coupon code');
+      return;
+    }
+
+    const coupon = availableCoupons.find(c => c.code === couponCode.toUpperCase());
+    
+    if (!coupon) {
+      setCouponError('Invalid coupon code');
+      return;
+    }
+
+    if (cartTotal < coupon.minPurchase) {
+      setCouponError(`Minimum purchase of ₹${coupon.minPurchase} required for this coupon`);
+      return;
+    }
+
+    setAppliedCoupon(coupon);
+  };
+
+  const handleRemoveCoupon = () => {
+    setAppliedCoupon(null);
+    setCouponCode('');
+    setCouponError('');
+  };
+
+  const saveAddressAndProceed = async () => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        alert('Please log in to proceed.');
+        navigate('/Login');
+        return;
+      }
+
+      let addressToUse = useSavedAddress && savedAddress ? savedAddress : newAddress;
+
+      if (!useSavedAddress) {
+        if (!newAddress.addressLine1 || !newAddress.houseNo || !newAddress.building) {
+          alert('Please fill in all required address fields.');
+          return;
+        }
+
+        const response = await axios.put(
+          'http://localhost:5000/api/customers/users/update-address',
+          { address: newAddress },
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+        console.log('Saved new address:', response.data);
+        setSavedAddress(newAddress);
+        localStorage.setItem('userAddress', JSON.stringify(newAddress));
+        addressToUse = newAddress;
+      }
+
+      localStorage.setItem('selectedAddress', JSON.stringify(addressToUse));
+      setShowAddressModal(false);
+      navigate('/Payment');
+    } catch (err) {
+      console.error('Error saving address:', err);
+      alert('Failed to save address: ' + (err.response?.data?.message || err.message));
+    }
+  };
+
+  const handleProceedToCheckout = () => {
+    const token = localStorage.getItem('token');
+    if (!token) {
+      alert('Please log in to proceed.');
+      navigate('/Login');
+      return;
+    }
+
+    setShowAddressModal(true);
+  };
 
   return (
     <div className="container mt-4">
       <h2>Your Cart ({cartCount} items)</h2>
-      
+
       {cartItems.length === 0 ? (
         <div className="alert alert-info">
-          Your cart is empty. <button className="btn btn-link" onClick={() => navigate('/')}>Continue shopping</button>
+          Your cart is empty.{' '}
+          <button className="btn btn-link" onClick={() => navigate('/')}>
+            Continue shopping
+          </button>
         </div>
       ) : (
         <>
@@ -68,7 +200,7 @@ function Cart() {
                 </div>
               ))}
             </div>
-            
+
             <div className="col-lg-4">
               <div className="card">
                 <div className="card-body">
@@ -79,20 +211,65 @@ function Cart() {
                   </div>
                   <div className="d-flex justify-content-between mb-2 text-success">
                     <span>Discount (10%)</span>
-                    <span>-₹{discount.toFixed(2)}</span>
+                    <span>-₹{baseDiscount.toFixed(2)}</span>
                   </div>
+                  
+                  {/* Coupon Section */}
+                  <div className="mt-3 mb-3">
+                    <div className="input-group">
+                      <input
+                        type="text"
+                        className="form-control"
+                        placeholder="Coupon code"
+                        value={couponCode}
+                        onChange={(e) => setCouponCode(e.target.value)}
+                        disabled={appliedCoupon}
+                      />
+                      {appliedCoupon ? (
+                        <button
+                          className="btn btn-outline-danger"
+                          type="button"
+                          onClick={handleRemoveCoupon}
+                        >
+                          Remove
+                        </button>
+                      ) : (
+                        <button
+                          className="btn btn-outline-primary"
+                          type="button"
+                          onClick={handleApplyCoupon}
+                        >
+                          Apply
+                        </button>
+                      )}
+                    </div>
+                    {couponError && <div className="text-danger small mt-1">{couponError}</div>}
+                    {appliedCoupon && (
+                      <div className="text-success small mt-1">
+                        Coupon applied: {appliedCoupon.code} (-₹{appliedCoupon.discount})
+                      </div>
+                    )}
+                  </div>
+                  
+                  {appliedCoupon && (
+                    <div className="d-flex justify-content-between mb-2 text-success">
+                      <span>Coupon Discount ({appliedCoupon.code})</span>
+                      <span>-₹{couponDiscount.toFixed(2)}</span>
+                    </div>
+                  )}
+                  
                   <hr />
                   <div className="d-flex justify-content-between fw-bold">
                     <span>Total</span>
                     <span>₹{totalAfterDiscount.toFixed(2)}</span>
                   </div>
-                  <button 
+                  <button
                     className="btn btn-primary w-100 mt-3"
-                    onClick={() => navigate('/Payment')}
+                    onClick={handleProceedToCheckout}
                   >
                     Proceed to Checkout
                   </button>
-                  <button 
+                  <button
                     className="btn btn-outline-danger w-100 mt-2"
                     onClick={clearCart}
                   >
@@ -102,6 +279,194 @@ function Cart() {
               </div>
             </div>
           </div>
+
+          {/* Address Modal */}
+          {showAddressModal && (
+            <div
+              className="modal fade show d-block"
+              tabIndex="-1"
+              style={{ backgroundColor: 'rgba(0,0,0,0.5)' }}
+            >
+              <div className="modal-dialog modal-dialog-centered">
+                <div className="modal-content">
+                  <div className="modal-header">
+                    <h5 className="modal-title">Delivery Address</h5>
+                    <button
+                      type="button"
+                      className="btn-close"
+                      onClick={() => setShowAddressModal(false)}
+                    ></button>
+                  </div>
+                  <div className="modal-body">
+                    {savedAddress ? (
+                      <>
+                        <div className="mb-3">
+                          <label className="form-label">Saved Address</label>
+                          <p>
+                            {savedAddress.label}: {savedAddress.addressLine1},{' '}
+                            {savedAddress.houseNo}, {savedAddress.building}
+                            {savedAddress.landmark ? `, ${savedAddress.landmark}` : ''}
+                          </p>
+                          <div>
+                            <button
+                              className="btn btn-sm btn-primary me-2"
+                              onClick={() => setUseSavedAddress(true)}
+                              disabled={useSavedAddress}
+                            >
+                              Use This Address
+                            </button>
+                            <button
+                              className="btn btn-sm btn-outline-primary"
+                              onClick={() => setUseSavedAddress(false)}
+                            >
+                              Add New Address
+                            </button>
+                          </div>
+                        </div>
+
+                        {!useSavedAddress && (
+                          <div>
+                            <div className="mb-3">
+                              <label className="form-label">Address Line 1 *</label>
+                              <input
+                                type="text"
+                                className="form-control"
+                                name="addressLine1"
+                                value={newAddress.addressLine1}
+                                onChange={handleAddressChange}
+                                placeholder="Street address"
+                                required
+                              />
+                            </div>
+                            <div className="mb-3">
+                              <label className="form-label">House No. & Floor *</label>
+                              <input
+                                type="text"
+                                className="form-control"
+                                name="houseNo"
+                                value={newAddress.houseNo}
+                                onChange={handleAddressChange}
+                                placeholder="Enter house no. and floor"
+                                required
+                              />
+                            </div>
+                            <div className="mb-3">
+                              <label className="form-label">Building & Block No. *</label>
+                              <input
+                                type="text"
+                                className="form-control"
+                                name="building"
+                                value={newAddress.building}
+                                onChange={handleAddressChange}
+                                placeholder="Enter building and block no."
+                                required
+                              />
+                            </div>
+                            <div className="mb-3">
+                              <label className="form-label">Landmark & Area Name (Optional)</label>
+                              <input
+                                type="text"
+                                className="form-control"
+                                name="landmark"
+                                value={newAddress.landmark}
+                                onChange={handleAddressChange}
+                                placeholder="Enter landmark and area name"
+                              />
+                            </div>
+                            <div className="mb-3">
+                              <label className="form-label">Add Address Label</label>
+                              <select
+                                className="form-select"
+                                name="label"
+                                value={newAddress.label}
+                                onChange={handleAddressChange}
+                              >
+                                <option value="Home">Home</option>
+                                <option value="Work">Work</option>
+                                <option value="Other">Other</option>
+                              </select>
+                            </div>
+                          </div>
+                        )}
+                      </>
+                    ) : (
+                      <>
+                        <div className="mb-3">
+                          <label className="form-label">Address Line 1 *</label>
+                          <input
+                            type="text"
+                            className="form-control"
+                            name="addressLine1"
+                            value={newAddress.addressLine1}
+                            onChange={handleAddressChange}
+                            placeholder="Street address"
+                            required
+                          />
+                        </div>
+                        <div className="mb-3">
+                          <label className="form-label">House No. & Floor *</label>
+                          <input
+                            type="text"
+                            className="form-control"
+                            name="houseNo"
+                            value={newAddress.houseNo}
+                            onChange={handleAddressChange}
+                            placeholder="Enter house no. and floor"
+                            required
+                          />
+                        </div>
+                        <div className="mb-3">
+                          <label className="form-label">Building & Block No. *</label>
+                          <input
+                            type="text"
+                            className="form-control"
+                            name="building"
+                            value={newAddress.building}
+                            onChange={handleAddressChange}
+                            placeholder="Enter building and block no."
+                            required
+                          />
+                        </div>
+                        <div className="mb-3">
+                          <label className="form-label">Landmark & Area Name (Optional)</label>
+                          <input
+                            type="text"
+                            className="form-control"
+                            name="landmark"
+                            value={newAddress.landmark}
+                            onChange={handleAddressChange}
+                            placeholder="Enter landmark and area name"
+                          />
+                        </div>
+                        <div className="mb-3">
+                          <label className="form-label">Add Address Label</label>
+                          <select
+                            className="form-select"
+                            name="label"
+                            value={newAddress.label}
+                            onChange={handleAddressChange}
+                          >
+                            <option value="Home">Home</option>
+                            <option value="Work">Work</option>
+                            <option value="Other">Other</option>
+                          </select>
+                        </div>
+                      </>
+                    )}
+                  </div>
+                  <div className="modal-footer">
+                    <button
+                      type="button"
+                      className="btn btn-primary w-100"
+                      onClick={saveAddressAndProceed}
+                    >
+                      {savedAddress && useSavedAddress ? 'Continue with Saved Address' : 'Save & Continue'}
+                    </button>
+                  </div>
+                </div>
+              </div>
+            </div>
+          )}
         </>
       )}
     </div>
