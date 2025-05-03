@@ -11,6 +11,7 @@ import ForgotPassword from './pages/forgotPassword.js';
 import { CartProvider } from './contexts/cartContext.js';
 import Cart from './pages/cart.js';
 import PaymentComponent from './pages/payment.js';
+import OrderHistory from './pages/prevOrder.js';
 
 function App() {
   return (
@@ -30,6 +31,8 @@ function App() {
             <Route path="/ForgotPassword" element={<ForgotPassword />} />
             <Route path="/cart" element={<Cart />} />
             <Route path="/Payment" element={<PaymentComponent />} />
+            <Route path="/ " element={<OrderHistory />} />
+
           </Routes>
         </CartProvider>
       </BrowserRouter>

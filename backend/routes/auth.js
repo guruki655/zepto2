@@ -6,37 +6,38 @@ const bcrypt = require('bcryptjs');
 const OTP = require('../models/otpModel');
 // Login Route
 router.post('/login', async (req, res) => {
-    try {
-        const { email, password } = req.body;
+  try {
+    const { email, password } = req.body;
 
-        // Check if the user exists
-        const user = await User.findOne({ email });
-        if (!user) {
-            return res.status(400).json({ message: 'User not found' });
-        }
-
-        // Compare hashed password with input
-        const isMatch = await bcrypt.compare(password, user.password);
-        if (!isMatch) {
-            return res.status(400).json({ message: 'Invalid credentials' });
-        }
-
-        // Generate JWT token (sign the token)
-        const token = jwt.sign(
-            { userId: user._id, role: user.role },
-            'gkr103055',  // Secret key for signing the token (use environment variables in production)
-            { expiresIn: '1h' }  // Token expiration time
-        );
-
-        // Respond with token and user role
-        res.json({
-            token,
-            role: user.role,
-            userId: user._id
-        });
-    } catch (err) {
-        res.status(500).json({ message: err.message });
+    // Check if the user exists
+    const user = await User.findOne({ email });
+    if (!user) {
+      return res.status(400).json({ message: 'User not found' });
     }
+
+    // Compare hashed password with input
+    const isMatch = await bcrypt.compare(password, user.password);
+    if (!isMatch) {
+      return res.status(400).json({ message: 'Invalid credentials' });
+    }
+
+    // Generate JWT token
+    const token = jwt.sign(
+      { userId: user._id, role: user.role },
+      'gkr103055',
+      { expiresIn: '1h' }
+    );
+
+    // Respond with token, role, userId, and email
+    res.json({
+      token,
+      role: user.role,
+      userId: user._id,
+      email: user.email // Add email to the response
+    });
+  } catch (err) {
+    res.status(500).json({ message: err.message });
+  }
 });
 
 // Get Users Route
