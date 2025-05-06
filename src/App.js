@@ -12,6 +12,7 @@ import { CartProvider } from './contexts/cartContext.js';
 import Cart from './pages/cart.js';
 import PaymentComponent from './pages/payment.js';
 import OrderHistory from './pages/prevOrder.js';
+import CategoryPage from './pages/category.js';
 
 function App() {
   return (
@@ -32,6 +33,7 @@ function App() {
             <Route path="/cart" element={<Cart />} />
             <Route path="/Payment" element={<PaymentComponent />} />
             <Route path="/orders" element={<OrderHistory />} />
+            <Route path="/category/:categoryName" element={<CategoryPage />} />
 
           </Routes>
         </CartProvider>

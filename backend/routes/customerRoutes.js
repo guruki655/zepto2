@@ -65,12 +65,41 @@ router.post('/', upload.single('ProductImage'), async (req, res) => {
 });
 
 // PUT - Update a vendor
-router.put('/:id', async (req, res) => {
+router.put('/:id', upload.single('ProductImage'), async (req, res) => {
   try {
-    const customer = await Customer.findByIdAndUpdate(req.params.id, req.body, { new: true });
-    if (!customer) return res.status(404).json({ message: 'customer not found' });
+    const {
+      ProductID, ProductName, ProductDescription,
+      ProductLocation, ProductPrice, ProductQuantity,
+      ProductType, ProductSubType, ProductWeight, ProductShelf,
+      ProductBrand, ProductMaterial
+    } = req.body;
+
+    const updateData = {
+      ProductID,
+      ProductName,
+      ProductDescription,
+      ProductLocation,
+      ProductPrice,
+      ProductQuantity,
+      ProductType,
+      ProductSubType,
+      ProductWeight,
+      ProductShelf,
+      ProductBrand,
+      ProductMaterial
+    };
+
+    if (req.file) {
+      updateData.ProductImage = req.file.buffer.toString('base64');
+    }
+
+    const customer = await Customer.findByIdAndUpdate(req.params.id, updateData, { new: true });
+    if (!customer) {
+      return res.status(404).json({ message: 'Product not found' });
+    }
     res.json(customer);
   } catch (err) {
+    console.error('Error updating product:', err);
     res.status(400).json({ message: err.message });
   }
 });
@@ -114,30 +143,61 @@ router.get('/:id', async (req, res) => {
 
 // POST - Save order with user email
 router.post('/orders/save', async (req, res) => {
-    try {
-      const { items, total, email, address } = req.body;
-      console.log('Received order data:', req.body);
-  
-      const user = await User.findOne({ email });
-      if (!user) return res.status(404).json({ message: 'User not found' });
-  
-      const newOrder = new Order({
-        user: user._id,
-        items,
-        total,
-        address,
-        createdAt: new Date(),
-      });
-  
-      await newOrder.save();
-      console.log('Saved order:', newOrder);
-      res.status(201).json({ message: 'Order saved successfully', order: newOrder });
-    } catch (error) {
-      console.error('Error saving order:', error);
-      res.status(500).json({ message: 'Failed to save order' });
-    }
-  });
+  try {
+    const { items, total, email, address } = req.body;
+    console.log('Received order data:', req.body);
 
+    // Find the user by email
+    const user = await User.findOne({ email });
+    if (!user) return res.status(404).json({ message: 'User not found' });
+
+    // Validate stock for all items
+    for (const item of items) {
+      const product = await Customer.findOne({ ProductID: item.ProductID });
+      if (!product) {
+        return res.status(404).json({ message: `Product ${item.ProductName} not found` });
+      }
+
+      const availableStock = parseInt(product.ProductQuantity);
+      if (isNaN(availableStock)) {
+        return res.status(400).json({ message: `Invalid stock value for ${product.ProductName}` });
+      }
+      if (availableStock < item.ProductQuantity) {
+        return res.status(400).json({
+          message: `Insufficient stock for ${product.ProductName}. Only ${availableStock} available.`,
+        });
+      }
+    }
+
+    // Update stock for all items
+    for (const item of items) {
+      const product = await Customer.findOne({ ProductID: item.ProductID });
+      const currentStock = parseInt(product.ProductQuantity);
+      const newStock = currentStock - item.ProductQuantity;
+      await Customer.findOneAndUpdate(
+        { ProductID: item.ProductID },
+        { $set: { ProductQuantity: newStock.toString() } },
+        { new: true }
+      );
+    }
+
+    // Save the order
+    const newOrder = new Order({
+      user: user._id,
+      items,
+      total,
+      address,
+      createdAt: new Date(),
+    });
+
+    await newOrder.save();
+    console.log('Saved order:', newOrder);
+    res.status(201).json({ message: 'Order saved successfully', order: newOrder });
+  } catch (error) {
+    console.error('Error saving order:', error);
+    res.status(500).json({ message: 'Failed to save order', error: error.message });
+  }
+});
 
   router.get('/orders/history/:email', async (req, res) => {
     try {

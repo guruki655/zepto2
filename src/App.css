@@ -91,3 +91,19 @@
   background: white;
   border-radius: 10px;
 }
+.cart-icon {
+  position: relative;
+  display: inline-block;
+}
+
+.cart-icon .badge {
+  position: absolute;
+  top: -8px; /* Move badge closer to top of icon */
+  right: -10px; /* Move badge closer to right of icon */
+  transform: none; /* Override translate-middle */
+  font-size: 0.6rem; /* Match existing inline style */
+  padding: 2px 6px; /* Ensure badge is compact */
+  min-width: 20px; /* Prevent badge from collapsing */
+  text-align: center;
+  line-height: 16px; /* Center text vertically */
+}

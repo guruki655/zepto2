@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import axios from 'axios';
+import { useNavigate } from 'react-router-dom';
 import zeptoVeg from '../images/zeptoVeggie.png';
 import ZeptoPet from '../images/zeptoPetCare.png';
 import ZeptoBaby from '../images/zeptoBabyCare.png';
@@ -18,13 +19,16 @@ import ZeptoAtta from '../images/zeptoAtta.png';
 import zetpoBanner from '../images/zeptoHomeBanner.webp';
 import zeptoEleBanner from '../images/zeptoEleBanner.webp';
 import zeptoBeautyBanner from '../images/zeptoBeautyBanner.webp';
+import zeptoMakeup from '../images/zeptoMakeup.png';
 import { useCart } from '../contexts/cartContext';
+import '../styles/home.css';
 
 function Home() {
   const [selectedCategory, setSelectedCategory] = useState('All');
   const [products, setProducts] = useState([]);
   const [selectedProduct, setSelectedProduct] = useState(null);
   const { addToCart, removeFromCart, cartItems } = useCart();
+  const navigate = useNavigate();
 
   useEffect(() => {
     fetchProducts();
@@ -35,9 +39,29 @@ function Home() {
       const res = await axios.get('http://localhost:5000/api/customers');
       setProducts(res.data);
     } catch (err) {
-      console.error(err);
+      console.error('Error fetching products:', err);
     }
   };
+
+  // Map images to category names
+  const categoryImages = [
+    { src: zeptoVeg, name: 'Vegetables' },
+    { src: ZeptoPet, name: 'Pet' },
+    { src: ZeptoBaby, name: 'Baby' },
+    { src: ZeptoHair, name: 'Hair' },
+    { src: ZeptoElectronics, name: 'Electronics' },
+    { src: ZeptoIceCream, name: 'IceCream' },
+    { src: ZeptoPackaged, name: 'Packaged' },
+    { src: ZeptoCafe, name: 'Cafe' },
+    { src: ZeptoDairy, name: 'Dairy' },
+    { src: ZeptoFrozen, name: 'Frozen' },
+    { src: ZeptoJewellery, name: 'Jewellery' },
+    { src: ZeptoSkincare, name: 'Skincare' },
+    { src: ZeptoTea, name: 'Tea' },
+    { src: ZeptoToys, name: 'Toys' },
+    { src: ZeptoAtta, name: 'Atta' },
+    { src: zeptoMakeup, name: 'Makeup' },
+  ];
 
   const electronicProducts = products.filter(
     (product) => product.ProductType === 'Electronic'
@@ -63,10 +87,15 @@ function Home() {
   const beautyProducts = products.filter(
     (product) => product.ProductType === 'Beauty'
   );
+  const makeupProducts = products.filter(
+    (product) => product.ProductType === 'Makeup'
+  );
 
   const ProductCard = ({ product }) => {
-    const cartProduct = cartItems.find((item) => item.ProductID === product.ProductID); // Check if product is in cart
-    const quantity = cartProduct ? cartProduct.quantity : 0; // Get quantity from cart
+    const cartProduct = cartItems.find((item) => item.ProductID === product.ProductID);
+    const quantity = cartProduct ? cartProduct.quantity : 0;
+    const availableStock = parseInt(product.ProductQuantity);
+    const isOutOfStock = isNaN(availableStock) || availableStock === 0;
 
     return (
       <div
@@ -85,7 +114,14 @@ function Home() {
             <h5 className="card-title">{product.ProductName}</h5>
             <p className="card-text">Brand: {product.ProductBrand}</p>
             <p className="card-text">Price: ₹{product.ProductPrice}</p>
-            {(selectedCategory === 'Cafe' || selectedCategory === 'Electronics' || selectedCategory === 'All') && (
+            <p className="card-text">
+              {isOutOfStock ? (
+                <span className="text-danger">Out of Stock</span>
+              ) : (
+                `Stock: ${product.ProductQuantity}`
+              )}
+            </p>
+            {!isOutOfStock ? (
               cartProduct ? (
                 <div className="d-flex align-items-center">
                   <button
@@ -119,96 +155,108 @@ function Home() {
                   Add to Cart
                 </button>
               )
-            )}
+            ) : null}
           </div>
         </div>
       </div>
     );
   };
 
-  const ProductModal = ({ product, onClose }) => (
-    <div
-      className="modal"
-      style={{
-        display: 'block',
-        position: 'fixed',
-        top: 0,
-        left: 0,
-        right: 0,
-        bottom: 0,
-        backgroundColor: 'rgba(0,0,0,0.5)',
-        zIndex: 1000,
-      }}
-    >
+  const ProductModal = ({ product, onClose }) => {
+    const availableStock = parseInt(product.ProductQuantity);
+    const isOutOfStock = isNaN(availableStock) || availableStock === 0;
+
+    return (
       <div
-        className="modal-content"
+        className="modal"
         style={{
-          backgroundColor: 'white',
-          margin: '15% auto',
-          padding: '20px',
-          width: '70%',
-          maxWidth: '500px',
-          borderRadius: '5px',
+          display: 'block',
+          position: 'fixed',
+          top: 0,
+          left: 0,
+          right: 0,
+          bottom: 0,
+          backgroundColor: 'rgba(0,0,0,0.5)',
+          zIndex: 1000,
         }}
       >
-        <div className="modal-header">
-          <h5>{product.ProductName}</h5>
-          <button className="btn btn-close" onClick={onClose}></button>
-        </div>
-        <div className="modal-body">
-          <img
-            src={`data:image/png;base64,${product.ProductImage}`}
-            alt={product.ProductName}
-            style={{ width: '100%', height: '200px', objectFit: 'cover', marginBottom: '15px' }}
-          />
-          <p>
-            <strong>Description:</strong> {product.ProductDescription}
-          </p>
-          <p>
-            <strong>Brand:</strong> {product.ProductBrand}
-          </p>
-          <p>
-            <strong>Price:</strong> ₹{product.ProductPrice}
-          </p>
-          <p>
-            <strong>Quantity:</strong> {product.ProductQuantity}
-          </p>
-          <p>
-            <strong>Location:</strong> {product.ProductLocation}
-          </p>
-          <p>
-            <strong>Type:</strong> {product.ProductType}
-          </p>
-          <p>
-            <strong>Sub Type:</strong> {product.ProductSubType}
-          </p>
-          <p>
-            <strong>Weight:</strong> {product.ProductWeight}
-          </p>
-          <p>
-            <strong>Shelf:</strong> {product.ProductShelf}
-          </p>
-          <p>
-            <strong>Material:</strong> {product.ProductMaterial}
-          </p>
-        </div>
-        <div className="modal-footer">
-          <button
-            className="btn btn-primary"
-            onClick={() => {
-              addToCart(product);
-              onClose();
-            }}
-          >
-            Add to Cart
-          </button>
-          <button className="btn btn-secondary" onClick={onClose}>
-            Close
-          </button>
+        <div
+          className="modal-content"
+          style={{
+            backgroundColor: 'white',
+            margin: '15% auto',
+            padding: '20px',
+            width: '70%',
+            maxWidth: '500px',
+            borderRadius: '5px',
+          }}
+        >
+          <div className="modal-header">
+            <h5>{product.ProductName}</h5>
+            <button className="btn btn-close" onClick={onClose}></button>
+          </div>
+          <div className="modal-body">
+            <img
+              src={`data:image/png;base64,${product.ProductImage}`}
+              alt={product.ProductName}
+              style={{ width: '100%', height: '200px', objectFit: 'cover', marginBottom: '15px' }}
+            />
+            <p>
+              <strong>Description:</strong> {product.ProductDescription}
+            </p>
+            <p>
+              <strong>Brand:</strong> {product.ProductBrand}
+            </p>
+            <p>
+              <strong>Price:</strong> ₹{product.ProductPrice}
+            </p>
+            <p>
+              <strong>Quantity:</strong>{' '}
+              {isOutOfStock ? (
+                <span className="text-danger">Out of Stock</span>
+              ) : (
+                product.ProductQuantity
+              )}
+            </p>
+            <p>
+              <strong>Location:</strong> {product.ProductLocation}
+            </p>
+            <p>
+              <strong>Type:</strong> {product.ProductType}
+            </p>
+            <p>
+              <strong>Sub Type:</strong> {product.ProductSubType}
+            </p>
+            <p>
+              <strong>Weight:</strong> {product.ProductWeight}
+            </p>
+            <p>
+              <strong>Shelf:</strong> {product.ProductShelf}
+            </p>
+            <p>
+              <strong>Material:</strong> {product.ProductMaterial}
+            </p>
+          </div>
+          <div className="modal-footer">
+            {!isOutOfStock && (
+              <button
+                className="btn btn-primary"
+                onClick={() => {
+                  addToCart(product);
+                  onClose();
+                }}
+              >
+                Add to Cart
+              </button>
+            )}
+            <button className="btn btn-secondary" onClick={onClose}>
+              Close
+            </button>
+          </div>
         </div>
       </div>
-    </div>
-  );
+    );
+  };
 
   return (
     <div className="shadow-lg">
@@ -257,81 +305,15 @@ function Home() {
         {selectedCategory === 'All' && (
           <div className="col-lg-12">
             <div style={{ overflowX: 'auto', whiteSpace: 'nowrap', padding: '10px' }}>
-              <img
-                src={zeptoVeg}
-                alt="Vegetables"
-                style={{ width: '100px', height: '100px', marginRight: '20px', objectFit: 'contain' }}
-              />
-              <img
-                src={ZeptoPet}
-                alt="Pet"
-                style={{ width: '100px', height: '100px', marginRight: '20px', objectFit: 'contain' }}
-              />
-              <img
-                src={ZeptoBaby}
-                alt="Baby"
-                style={{ width: '100px', height: '100px', marginRight: '20px', objectFit: 'contain' }}
-              />
-              <img
-                src={ZeptoHair}
-                alt="Hair"
-                style={{ width: '100px', height: '100px', marginRight: '20px', objectFit: 'contain' }}
-              />
-              <img
-                src={ZeptoElectronics}
-                alt="Electronics"
-                style={{ width: '100px', height: '100px', marginRight: '20px', objectFit: 'contain' }}
-              />
-              <img
-                src={ZeptoIceCream}
-                alt="Ice Cream"
-                style={{ width: '100px', height: '100px', marginRight: '20px', objectFit: 'contain' }}
-              />
-              <img
-                src={ZeptoPackaged}
-                alt="Packaged"
-                style={{ width: '100px', height: '100px', marginRight: '20px', objectFit: 'contain' }}
-              />
-              <img
-                src={ZeptoCafe}
-                alt="Cafe"
-                style={{ width: '100px', height: '100px', marginRight: '20px', objectFit: 'contain' }}
-              />
-              <img
-                src={ZeptoDairy}
-                alt="Cafe"
-                style={{ width: '100px', height: '100px', marginRight: '20px', objectFit: 'contain' }}
-              />
-              <img
-                src={ZeptoFrozen}
-                alt="Cafe"
-                style={{ width: '100px', height: '100px', marginRight: '20px', objectFit: 'contain' }}
-              />
-              <img
-                src={ZeptoJewellery}
-                alt="Cafe"
-                style={{ width: '100px', height: '100px', marginRight: '20px', objectFit: 'contain' }}
-              />
-              <img
-                src={ZeptoSkincare}
-                alt="Cafe"
-                style={{ width: '100px', height: '100px', marginRight: '20px', objectFit: 'contain' }}
-              />
-              <img
-                src={ZeptoToys}
-                alt="Cafe"
-                style={{ width: '100px', height: '100px', marginRight: '20px', objectFit: 'contain' }}
-              />
-              <img
-                src={ZeptoTea}
-                alt="Cafe"
-                style={{ width: '100px', height: '100px', marginRight: '20px', objectFit: 'contain' }}
-              />
-              <img
-                src={ZeptoAtta}
-                alt="Cafe"
-                style={{ width: '100px', height: '100px', marginRight: '20px', objectFit: 'contain' }}
-              />
+              {categoryImages.map((category, index) => (
+                <img
+                  key={index}
+                  src={category.src}
+                  alt={category.name}
+                  style={{ width: '100px', height: '100px', marginRight: '20px', objectFit: 'contain', cursor: 'pointer' }}
+                  onClick={() => navigate(`/category/${category.name}`)}
+                />
+              ))}
             </div>
             <div className="col-lg-12">
               <img className="mt-5" src={zetpoBanner} alt="banner" />

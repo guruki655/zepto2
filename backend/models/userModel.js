@@ -12,6 +12,8 @@ const userSchema = new mongoose.Schema({
   },
   vendorId: { type: Number, default: null },
   customerId: { type: Number, default: null },
+  licenseNumber: { type: String, default: null, unique: true, sparse: true },
+
   address: {
     addressLine1: { type: String, default: '' },
     houseNo: { type: String, default: '' },

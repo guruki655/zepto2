@@ -40,6 +40,7 @@ const PaymentComponent = () => {
     const orderData = {
       email,
       items: cartItems.map((item) => ({
+        ProductID: item.ProductID,  
         ProductName: item.ProductName,
         ProductPrice: parseFloat(item.ProductPrice),
         ProductQuantity: item.quantity,
@@ -108,6 +109,7 @@ const PaymentComponent = () => {
             className="form-control"
             type="text"
             id="cardnumber"
+            maxLength="16"
             placeholder="1234 5678 9012 3456"
             value={cardNumber}
             onChange={(e) => setCardNumber(e.target.value.replace(/\D/g, ''))}

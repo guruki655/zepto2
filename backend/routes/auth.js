@@ -2,6 +2,8 @@ const express = require('express');
 const router = express.Router();
 const User = require('../models/userModel');
 const jwt = require('jsonwebtoken');
+const mongoose = require('mongoose');
+
 const bcrypt = require('bcryptjs');
 const OTP = require('../models/otpModel');
 // Login Route
@@ -50,62 +52,86 @@ router.get('/users', async (req, res) => {
     }
 });
 
+// Update User Route (for licenseNumber)
+router.put('/users/:id', async (req, res) => {
+  try {
+    if (!mongoose.isValidObjectId(req.params.id)) {
+      return res.status(400).json({ message: 'Invalid user ID' });
+    }
+    const { licenseNumber } = req.body;
+    if (!licenseNumber) {
+      return res.status(400).json({ message: 'License number is required' });
+    }
+
+    const updateData = { licenseNumber };
+    const user = await User.findByIdAndUpdate(
+      req.params.id,
+      { $set: updateData },
+      { new: true, runValidators: true }
+    );
+    if (!user) {
+      return res.status(404).json({ message: 'User not found' });
+    }
+    res.json(user);
+  } catch (err) {
+    console.error('Error updating user:', err);
+    if (err.code === 11000) {
+      return res.status(400).json({ message: 'License number already exists' });
+    }
+    res.status(400).json({ message: err.message });
+  }
+});
+// Register Route
 // Register Route
 router.post('/register', async (req, res) => {
-    try {
-      // Log the entire request body to confirm receipt
-      console.log('Received payload:', req.body);
-  
-      // Destructure all fields, including phone
-      const { name, email, password, role, phone } = req.body;
-  
-      // Check if all required fields are present
-      if (!name || !email || !password || !role || !phone) {
-        return res.status(400).json({ 
-          message: 'Missing required fields', 
-          received: req.body 
-        });
-      }
-  
-      // Check if email already exists
-      const existingUser = await User.findOne({ email });
-      if (existingUser) return res.status(400).json({ message: 'User already exists' });
-  
-      // Hash the password
-      const salt = await bcrypt.genSalt(10);
-      const hashedPassword = await bcrypt.hash(password, salt);
-  
-      let vendorId = null;
-      let customerId = null;
-  
-      if (role === 'vendor') {
-        vendorId = await User.getNextId('vendor');
-      }
-      if (role === 'customer') {
-        customerId = await User.getNextId('customer');
-      }
-  
-      // Create new user with all fields
-      const newUser = new User({
-        name,
-        email,
-        password: hashedPassword,
-        role,
-        phone, // Explicitly include phone
-        vendorId,
-        customerId
-      });
-  
-      // Save the user
-      await newUser.save();
-  
-      res.status(201).json({ message: 'User created successfully' });
-    } catch (err) {
-      console.error('Registration error:', err);
-      res.status(500).json({ message: err.message });
-    }
-  });
+  try {
+    console.log('Received payload:', req.body);
+    const { name, email, password, role, phone, licenseNumber } = req.body;
 
+    if (!name || !email || !password || !role || !phone) {
+      return res.status(400).json({ 
+        message: 'Missing required fields', 
+        received: req.body 
+      });
+    }
+
+    const existingUser = await User.findOne({ email });
+    if (existingUser) return res.status(400).json({ message: 'User already exists' });
+
+    const salt = await bcrypt.genSalt(10);
+    const hashedPassword = await bcrypt.hash(password, salt);
+
+    let vendorId = null;
+    let customerId = null;
+
+    if (role === 'vendor') {
+      vendorId = await User.getNextId('vendor');
+    }
+    if (role === 'customer') {
+      customerId = await User.getNextId('customer');
+    }
+
+    const newUser = new User({
+      name,
+      email,
+      password: hashedPassword,
+      role,
+      phone,
+      vendorId,
+      customerId,
+      licenseNumber
+    });
+
+    await newUser.save();
+    res.status(201).json({ message: 'User created successfully' });
+  } catch (err) {
+    console.error('Registration error:', err);
+    if (err.code === 11000) {
+      return res.status(400).json({ message: 'Email or license number already exists' });
+    }
+    res.status(500).json({ message: err.message });
+  }
+});
 // Send OTP route
 // router.post('/send-otp', async (req, res) => {
 //     const { phone } = req.body;

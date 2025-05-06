@@ -7,17 +7,26 @@ export const CartProvider = ({ children }) => {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
 
   const addToCart = (product) => {
-    
     setCartItems((prevItems) => {
       const existingItem = prevItems.find(item => item.ProductID === product.ProductID);
-      const availableStock = parseInt(product.ProductQuantity); 
-  
+      const availableStock = parseInt(product.ProductQuantity);
+
+      if (isNaN(availableStock)) {
+        alert(`Invalid stock value for ${product.ProductName}`);
+        return prevItems;
+      }
+
+      if (availableStock === 0) {
+        alert(`${product.ProductName} is out of stock.`);
+        return prevItems;
+      }
+
       if (existingItem) {
         if (existingItem.quantity >= availableStock) {
           alert(`Only ${availableStock} in stock.`);
           return prevItems;
         }
-  
+
         return prevItems.map(item =>
           item.ProductID === product.ProductID
             ? { ...item, quantity: item.quantity + 1 }
@@ -28,14 +37,15 @@ export const CartProvider = ({ children }) => {
       }
     });
   };
+
   const removeFromCart = (productId) => {
     setCartItems((prevItems) => {
       const existingItem = prevItems.find(item => item.ProductID === productId);
-      
+
       if (existingItem.quantity === 1) {
         return prevItems.filter(item => item.ProductID !== productId);
       }
-      
+
       return prevItems.map(item =>
         item.ProductID === productId
           ? { ...item, quantity: item.quantity - 1 }

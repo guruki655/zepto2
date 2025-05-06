@@ -1,0 +1,202 @@
+import React, { useState, useEffect } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
+import axios from 'axios';
+import { useCart } from '../contexts/cartContext'; // Import cart context
+import '../styles/category.css';
+
+function CategoryPage() {
+  const { categoryName } = useParams(); // Get category name from URL
+  const navigate = useNavigate();
+  const { addToCart, removeFromCart, cartItems } = useCart(); // Cart context
+  const [subcategories, setSubcategories] = useState([]); // Dynamic subcategories
+  const [products, setProducts] = useState([]); // All products for category
+  const [selectedSubcategory, setSelectedSubcategory] = useState(null); // Selected subcategory
+  const [sortOption, setSortOption] = useState('default'); // Sort option state
+  const [loading, setLoading] = useState(true); // Loading state
+  const [error, setError] = useState(null); // Error state
+
+  useEffect(() => {
+    const fetchData = async () => {
+      try {
+        setLoading(true);
+        const res = await axios.get('http://localhost:5000/api/customers');
+        const allProducts = res.data;
+
+        // Normalize categoryName for case-insensitive matching
+        const normalizedCategory = categoryName.toLowerCase();
+
+        // Filter products by ProductType (case-insensitive)
+        const filteredProducts = allProducts.filter(
+          (product) => product.ProductType.toLowerCase() === normalizedCategory
+        );
+
+        // Extract unique ProductSubType values (case-insensitive)
+        const filteredSubcategories = [
+          ...new Set(
+            filteredProducts.map((product) => product.ProductSubType)
+          ),
+        ].sort(); // Sort for consistent display
+
+        setProducts(filteredProducts);
+        setSubcategories(filteredSubcategories);
+        setLoading(false);
+      } catch (err) {
+        console.error('Error fetching data:', err);
+        setError('Failed to load data. Please try again.');
+        setLoading(false);
+      }
+    };
+
+    fetchData();
+  }, [categoryName]);
+
+  // ProductCard component (adapted from Home.jsx)
+  const ProductCard = ({ product }) => {
+    const cartProduct = cartItems.find((item) => item.ProductID === product.ProductID);
+    const quantity = cartProduct ? cartProduct.quantity : 0;
+
+    return (
+      <div
+        className="col-lg-3"
+        style={{ cursor: 'pointer' }}
+      >
+        <div className="card h-100">
+          <img
+            src={`data:image/png;base64,${product.ProductImage}`}
+            className="card-img-top"
+            alt={product.ProductName}
+            style={{ height: '200px', objectFit: 'cover' }}
+          />
+          <div className="card-body">
+            <h5 className="card-title">{product.ProductName}</h5>
+            <p className="card-text">Brand: {product.ProductBrand}</p>
+            <p className="card-text">Price: ₹{product.ProductPrice}</p>
+            {cartProduct ? (
+              <div className="d-flex align-items-center">
+                <button
+                  className="btn btn-sm btn-outline-secondary"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    removeFromCart(product.ProductID);
+                  }}
+                >
+                  -
+                </button>
+                <span className="mx-2">{quantity}</span>
+                <button
+                  className="btn btn-sm btn-outline-secondary"
+                  onClick={(e) => {
+                    e.stopPropagation();
+                    addToCart(product);
+                  }}
+                >
+                  +
+                </button>
+              </div>
+            ) : (
+              <button
+                className="btn btn-primary"
+                onClick={(e) => {
+                  e.stopPropagation();
+                  addToCart(product);
+                }}
+              >
+                Add to Cart
+              </button>
+            )}
+          </div>
+        </div>
+      </div>
+    );
+  };
+
+  let displayedProducts = selectedSubcategory
+    ? products.filter(
+        (product) => product.ProductSubType.toLowerCase() === selectedSubcategory.toLowerCase()
+      )
+    : products;
+
+  displayedProducts = [...displayedProducts].sort((a, b) => {
+    const priceA = parseFloat(a.ProductPrice);
+    const priceB = parseFloat(b.ProductPrice);
+    if (sortOption === 'price-low') {
+      return priceA - priceB;
+    } else if (sortOption === 'price-high') {
+      return priceB - priceA;
+    }
+    return 0; // Default (no sorting)
+  });
+
+  return (
+    <div className="category-page">
+      <div className="zepto-sidebar">
+        <div className="zepto-sidebar-header">
+          <h5>{categoryName} Subcategories</h5>
+          <button className="btn btn-close" onClick={() => navigate('/')}></button>
+        </div>
+        <div className="zepto-sidebar-body">
+          {loading ? (
+            <p>Loading subcategories...</p>
+          ) : error ? (
+            <p className="zepto-sidebar-error">{error}</p>
+          ) : (
+            <ul>
+              {subcategories.length > 0 ? (
+                <>
+                  <li
+                    className={`zepto-sidebar-item ${selectedSubcategory === null ? 'active' : ''}`}
+                    onClick={() => setSelectedSubcategory(null)}
+                    style={{ cursor: 'pointer' }}
+                  >
+                    All
+                  </li>
+                  {subcategories.map((subcategory, index) => (
+                    <li
+                      key={index}
+                      className={`zepto-sidebar-item ${selectedSubcategory === subcategory ? 'active' : ''}`}
+                      onClick={() => setSelectedSubcategory(subcategory)}
+                      style={{ cursor: 'pointer' }}
+                    >
+                      {subcategory}
+                    </li>
+                  ))}
+                </>
+              ) : (
+                <li className="zepto-sidebar-item">No subcategories available</li>
+              )}
+            </ul>
+          )}
+        </div>
+      </div>
+      <div className="category-content">
+        <h2>{categoryName}</h2>
+        <div className="sort-container">
+          <select
+            className="sort-select"
+            value={sortOption}
+            onChange={(e) => setSortOption(e.target.value)}
+          >
+            <option value="default">Sort by: Default</option>
+            <option value="price-low">Sort by: Price Low to High</option>
+            <option value="price-high">Sort by: Price High to Low</option>
+          </select>
+        </div>
+        {loading ? (
+          <p>Loading products...</p>
+        ) : error ? (
+          <p className="zepto-sidebar-error">{error}</p>
+        ) : displayedProducts.length > 0 ? (
+          <div className="row">
+            {displayedProducts.map((product) => (
+              <ProductCard key={product._id} product={product} />
+            ))}
+          </div>
+        ) : (
+          <p>No products available for {selectedSubcategory || categoryName}.</p>
+        )}
+      </div>
+    </div>
+  );
+}
+
+export default CategoryPage;
