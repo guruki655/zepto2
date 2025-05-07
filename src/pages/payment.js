@@ -40,20 +40,21 @@ const PaymentComponent = () => {
     const orderData = {
       email,
       items: cartItems.map((item) => ({
-        ProductID: item.ProductID,  
+        ProductID: item.ProductID,
         ProductName: item.ProductName,
         ProductPrice: parseFloat(item.ProductPrice),
         ProductQuantity: item.quantity,
+        ProductImage: item.ProductImage,
       })),
       total: cartTotal,
       address: savedAddress,
     };
 
-    console.log('Sending order data:', orderData); // Add logging
+    console.log('Sending order data:', orderData);
 
     try {
       const response = await axios.post('http://localhost:5000/api/customers/orders/save', orderData);
-      console.log('Order save response:', response.data); // Add logging
+      console.log('Order save response:', response.data);
 
       if (response.status === 201) {
         alert('Payment successful and order saved!');

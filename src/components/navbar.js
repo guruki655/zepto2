@@ -1,33 +1,49 @@
 import React, { useState, useEffect } from 'react';
 import logo from '../images/zeptoLogo.svg';
-import { useNavigate, Link } from 'react-router-dom';
+import { useNavigate, Link, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { useCart } from '../contexts/cartContext';
 
 function Navbar() {
   const [showDropdown, setShowDropdown] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
+  const [userDetails, setUserDetails] = useState({ name: '', phone: '', email: '' });
   const [products, setProducts] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [showSearchDropdown, setShowSearchDropdown] = useState(false);
-  const [location, setLocation] = useState('Select Location'); // Default location text
-  const [showLocationDropdown, setShowLocationDropdown] = useState(false); // For manual selection
+  const [location, setLocation] = useState('Select Location');
+  const [showLocationDropdown, setShowLocationDropdown] = useState(false);
   const { cartCount } = useCart();
   const navigate = useNavigate();
+  const locationPath = useLocation();
 
-  // Check if user is logged in
   useEffect(() => {
     const token = localStorage.getItem('token');
+    const email = localStorage.getItem('email');
     setIsLoggedIn(!!token);
+
+    if (token && email) {
+      const fetchUserDetails = async () => {
+        try {
+          const res = await axios.get(`http://localhost:5000/api/auth/profile/${email}`);
+          setUserDetails({
+            name: res.data.name || 'User',
+            phone: res.data.phone || 'N/A',
+            email: res.data.email || email
+          });
+        } catch (err) {
+          console.error('Error fetching user details:', err);
+        }
+      };
+      fetchUserDetails();
+    }
   }, []);
 
-  // Fetch products for search
   useEffect(() => {
     const fetchProducts = async () => {
       try {
         const res = await axios.get('http://localhost:5000/api/customers');
-        console.log(res.data);
         setProducts(res.data);
       } catch (err) {
         console.error('Error fetching products:', err);
@@ -36,7 +52,6 @@ function Navbar() {
     fetchProducts();
   }, []);
 
-  // Fetch user's location using Geolocation API
   useEffect(() => {
     const fetchLocation = () => {
       if (navigator.geolocation) {
@@ -44,7 +59,6 @@ function Navbar() {
           async (position) => {
             const { latitude, longitude } = position.coords;
             try {
-              // Use Nominatim API for reverse geocoding (free alternative to Google Maps)
               const response = await axios.get(
                 `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`
               );
@@ -87,10 +101,17 @@ function Navbar() {
 
   const handleLogout = () => {
     localStorage.removeItem('token');
+    localStorage.removeItem('email');
     setIsLoggedIn(false);
+    setUserDetails({ name: '', phone: '', email: '' });
     setShowDropdown(false);
     alert('Logged out successfully!');
     navigate('/');
+  };
+
+  const goToOrders = () => {
+    navigate('/orders');
+    setShowDropdown(false);
   };
 
   const redirectToHome = () => {
@@ -119,16 +140,16 @@ function Navbar() {
     navigate(`/product/${ProductID}`);
   };
 
-  // Toggle location dropdown for manual selection
   const toggleLocationDropdown = () => {
     setShowLocationDropdown(!showLocationDropdown);
   };
 
-  // Manually set location (for demo purposes, replace with actual logic)
   const setManualLocation = (newLocation) => {
     setLocation(newLocation);
     setShowLocationDropdown(false);
   };
+
+  const isVendorDashboard = locationPath.pathname === '/VendorDashboard';
 
   return (
     <div className="shadow-lg">
@@ -176,52 +197,88 @@ function Navbar() {
               </div>
             )}
           </div>
-          <div className="col-lg-6 position-relative">
-            <input
-              className="form-control"
-              placeholder="Search"
-              type="text"
-              value={searchTerm}
-              onChange={handleSearchChange}
-            />
-            {showSearchDropdown && (
-              <ul
-                className="position-absolute bg-white border rounded mt-1 w-100"
-                style={{ zIndex: 1000 }}
-              >
-                {filteredProducts.length > 0 ? (
-                  filteredProducts.map((product) => (
-                    <li
-                      key={product._id}
-                      className="p-2 border-bottom"
-                      style={{ cursor: 'pointer' }}
-                      onClick={() => handleProductClick(product.ProductID)}
-                    >
-                      {product.ProductName}
-                    </li>
-                  ))
-                ) : (
-                  <li className="p-2">No products found</li>
-                )}
-              </ul>
-            )}
-          </div>
+          {!isVendorDashboard && (
+            <div className="col-lg-6 position-relative">
+              <input
+                className="form-control"
+                placeholder="Search"
+                type="text"
+                value={searchTerm}
+                onChange={handleSearchChange}
+              />
+              {showSearchDropdown && (
+                <ul
+                  className="position-absolute bg-white border rounded mt-1 w-100"
+                  style={{ zIndex: 1000, listStyleType: 'none', padding: 0 }}
+                >
+                  {filteredProducts.length > 0 ? (
+                    filteredProducts.map((product) => (
+                      <li
+                        key={product._id}
+                        className="p-2 border-bottom d-flex align-items-center"
+                        style={{ cursor: 'pointer' }}
+                        onClick={() => handleProductClick(product.ProductID)}
+                      >
+                        {product.ProductImage && (
+                          <img
+                            src={`data:image/jpeg;base64,${product.ProductImage}`}
+                            alt={product.ProductName}
+                            style={{ width: '30px', height: '30px', marginRight: '10px', objectFit: 'cover' }}
+                          />
+                        )}
+                        <span>{product.ProductName}</span>
+                      </li>
+                    ))
+                  ) : (
+                    <li className="p-2">No products found</li>
+                  )}
+                </ul>
+              )}
+            </div>
+          )}
           <div className="col-lg-1 position-relative">
-            <i
-              className="fa fa-user-circle-o fa-2x"
-              aria-hidden="true"
-              style={{ cursor: 'pointer' }}
-              onClick={handleIconClick}
-            ></i>
+            {isLoggedIn ? (
+              <div
+                style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}
+                onClick={handleIconClick}
+              >
+                <span>Hello, {userDetails.name}</span>
+                <i
+                  className="fa fa-user-circle-o fa-2x"
+                  aria-hidden="true"
+                  style={{ marginLeft: '5px' }}
+                ></i>
+              </div>
+            ) : (
+              <i
+                className="fa fa-user-circle-o fa-2x"
+                aria-hidden="true"
+                style={{ cursor: 'pointer' }}
+                onClick={handleIconClick}
+              ></i>
+            )}
             {showDropdown && (
               <div
                 className="position-absolute bg-white shadow rounded p-2"
-                style={{ top: '50px', right: '0' }}
+                style={{ top: '50px', right: '0', zIndex: 1000 }}
               >
                 {isLoggedIn ? (
-                  <p style={{ cursor: 'pointer' }} onClick={handleLogout}>
-                    Logout
-                  </p>
+                  <>
+                    <p>{userDetails.phone}</p>
+                    <p>{userDetails.email}</p>
+                    <p
+                      style={{ cursor: 'pointer' }}
+                      onClick={goToOrders}
+                    >
+                      Orders
+                    </p>
+                    <p
+                      style={{ cursor: 'pointer' }}
+                      onClick={handleLogout}
+                    >
+                      Logout
+                    </p>
+                  </>
                 ) : (
                   <>
                     <p style={{ cursor: 'pointer' }} onClick={goToLogin}>

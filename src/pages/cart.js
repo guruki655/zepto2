@@ -23,10 +23,12 @@ function Cart() {
     building: '',
     landmark: '',
     label: 'Home',
+    zipCode: '',
   });
   const [couponCode, setCouponCode] = useState('');
   const [appliedCoupon, setAppliedCoupon] = useState(null);
   const [couponError, setCouponError] = useState('');
+  const [addressError, setAddressError] = useState('');
 
   // Available coupons
   const availableCoupons = [
@@ -34,8 +36,22 @@ function Cart() {
       code: 'NEW100',
       discount: 100,
       minPurchase: 150,
-      description: 'Get ₹100 off on orders above ₹150'
-    }
+      description: 'Get ₹100 off on orders above ₹150',
+    },
+  ];
+
+  // Bangalore ZIP codes (simplified list for demonstration)
+  const bangaloreZipCodes = [
+    '560001', '560002', '560003', '560004', '560005', '560006', '560007', '560008', '560009', '560010',
+    '560011', '560012', '560013', '560014', '560015', '560016', '560017', '560018', '560019', '560020',
+    '560021', '560022', '560023', '560024', '560025', '560026', '560027', '560028', '560029', '560030',
+    '560031', '560032', '560033', '560034', '560035', '560036', '560037', '560038', '560039', '560040',
+    '560041', '560042', '560043', '560044', '560045', '560046', '560047', '560048', '560049', '560050',
+    '560051', '560052', '560053', '560054', '560055', '560056', '560057', '560058', '560059', '560060',
+    '560061', '560062', '560063', '560064', '560065', '560066', '560067', '560068', '560069', '560070',
+    '560071', '560072', '560073', '560074', '560075', '560076', '560077', '560078', '560079', '560080',
+    '560081', '560082', '560083', '560084', '560085', '560086', '560087', '560088', '560089', '560090',
+    '560091', '560092', '560093', '560094', '560095', '560096', '560097', '560098', '560099', '560100',
   ];
 
   // Calculate discounts
@@ -68,6 +84,7 @@ function Cart() {
   const handleAddressChange = (e) => {
     const { name, value } = e.target;
     setNewAddress((prev) => ({ ...prev, [name]: value }));
+    setAddressError(''); // Clear error on input change
   };
 
   const handleApplyCoupon = () => {
@@ -78,7 +95,7 @@ function Cart() {
       return;
     }
 
-    const coupon = availableCoupons.find(c => c.code === couponCode.toUpperCase());
+    const coupon = availableCoupons.find((c) => c.code === couponCode.toUpperCase());
     
     if (!coupon) {
       setCouponError('Invalid coupon code');
@@ -99,6 +116,16 @@ function Cart() {
     setCouponError('');
   };
 
+  const isValidBangaloreAddress = (address) => {
+    // Check if ZIP code is in Bangalore
+    if (!bangaloreZipCodes.includes(address.zipCode)) {
+      return false;
+    }
+    // Optionally, check if "Bangalore" is in addressLine1 or landmark (case-insensitive)
+    const addressStr = `${address.addressLine1} ${address.landmark}`.toLowerCase();
+    return addressStr.includes('bangalore') || true; // Rely on ZIP code primarily
+  };
+
   const saveAddressAndProceed = async () => {
     try {
       const token = localStorage.getItem('token');
@@ -111,11 +138,19 @@ function Cart() {
       let addressToUse = useSavedAddress && savedAddress ? savedAddress : newAddress;
 
       if (!useSavedAddress) {
-        if (!newAddress.addressLine1 || !newAddress.houseNo || !newAddress.building) {
-          alert('Please fill in all required address fields.');
+        // Validate required fields
+        if (!newAddress.addressLine1 || !newAddress.houseNo || !newAddress.building || !newAddress.zipCode) {
+          setAddressError('Please fill in all required address fields, including ZIP code.');
           return;
         }
 
+        // Validate Bangalore address
+        if (!isValidBangaloreAddress(newAddress)) {
+          setAddressError('This address is not serviceable. Only Bangalore addresses with valid ZIP codes are allowed.');
+          return;
+        }
+
+        // Save new address
         const response = await axios.put(
           'http://localhost:5000/api/customers/users/update-address',
           { address: newAddress },
@@ -125,6 +160,9 @@ function Cart() {
         setSavedAddress(newAddress);
         localStorage.setItem('userAddress', JSON.stringify(newAddress));
         addressToUse = newAddress;
+      } else if (savedAddress && !isValidBangaloreAddress(savedAddress)) {
+        setAddressError('Saved address is not serviceable. Please add a Bangalore address with a valid ZIP code.');
+        return;
       }
 
       localStorage.setItem('selectedAddress', JSON.stringify(addressToUse));
@@ -132,7 +170,7 @@ function Cart() {
       navigate('/Payment');
     } catch (err) {
       console.error('Error saving address:', err);
-      alert('Failed to save address: ' + (err.response?.data?.message || err.message));
+      setAddressError(err.response?.data?.message || 'Failed to save address.');
     }
   };
 
@@ -298,6 +336,9 @@ function Cart() {
                     ></button>
                   </div>
                   <div className="modal-body">
+                    {addressError && (
+                      <div className="alert alert-danger">{addressError}</div>
+                    )}
                     {savedAddress ? (
                       <>
                         <div className="mb-3">
@@ -306,6 +347,7 @@ function Cart() {
                             {savedAddress.label}: {savedAddress.addressLine1},{' '}
                             {savedAddress.houseNo}, {savedAddress.building}
                             {savedAddress.landmark ? `, ${savedAddress.landmark}` : ''}
+                            {savedAddress.zipCode ? `, ${savedAddress.zipCode}` : ''}
                           </p>
                           <div>
                             <button
@@ -359,6 +401,18 @@ function Cart() {
                                 value={newAddress.building}
                                 onChange={handleAddressChange}
                                 placeholder="Enter building and block no."
+                                required
+                              />
+                            </div>
+                            <div className="mb-3">
+                              <label className="form-label">ZIP Code *</label>
+                              <input
+                                type="text"
+                                className="form-control"
+                                name="zipCode"
+                                value={newAddress.zipCode}
+                                onChange={handleAddressChange}
+                                placeholder="Enter Bangalore ZIP code (e.g., 560001)"
                                 required
                               />
                             </div>
@@ -424,6 +478,18 @@ function Cart() {
                             value={newAddress.building}
                             onChange={handleAddressChange}
                             placeholder="Enter building and block no."
+                            required
+                          />
+                        </div>
+                        <div className="mb-3">
+                          <label className="form-label">ZIP Code *</label>
+                          <input
+                            type="text"
+                            className="form-control"
+                            name="zipCode"
+                            value={newAddress.zipCode}
+                            onChange={handleAddressChange}
+                            placeholder="Enter Bangalore ZIP code (e.g., 560001)"
                             required
                           />
                         </div>

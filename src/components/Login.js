@@ -1,30 +1,35 @@
 import React, { useState } from 'react';
 import axios from 'axios';
+import 'bootstrap-icons/font/bootstrap-icons.css'; // Import Bootstrap Icons
 
 function Login() {
   const [formData, setFormData] = useState({
     email: '',
     password: '',
   });
+  const [showPassword, setShowPassword] = useState(false); // State for password visibility
 
   const handleChange = (e) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+  };
+
+  const togglePasswordVisibility = () => {
+    setShowPassword(!showPassword);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
       const res = await axios.post('http://localhost:5000/api/auth/login', formData);
-      console.log('Response data:', res.data); // Debug the response
+      console.log('Response data:', res.data);
 
-      // Check if email exists in the response
       if (!res.data.email) {
         throw new Error('Email not received from server');
       }
 
-      localStorage.setItem('token', res.data.token); // Set token
-      localStorage.setItem('email', res.data.email); // Set email
-      console.log('Email in localStorage:', localStorage.getItem('email')); // Verify storage
+      localStorage.setItem('token', res.data.token);
+      localStorage.setItem('email', res.data.email);
+      console.log('Email in localStorage:', localStorage.getItem('email'));
 
       alert('Login successful!');
 
@@ -58,15 +63,24 @@ function Login() {
             />
           </div>
           <div className="mb-3">
-            <input
-              type="password"
-              name="password"
-              className="form-control"
-              placeholder="Password"
-              value={formData.password}
-              onChange={handleChange}
-              required
-            />
+            <div className="input-group">
+              <input
+                type={showPassword ? 'text' : 'password'}
+                name="password"
+                className="form-control"
+                placeholder="Password"
+                value={formData.password}
+                onChange={handleChange}
+                required
+              />
+              <button
+                type="button"
+                className="btn btn-outline-secondary"
+                onClick={togglePasswordVisibility}
+              >
+                <i className={showPassword ? 'bi bi-eye-slash' : 'bi bi-eye'}></i>
+              </button>
+            </div>
           </div>
           <div className="d-grid">
             <button type="submit" className="btn btn-primary">Login</button>

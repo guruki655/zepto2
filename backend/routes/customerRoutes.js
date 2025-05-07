@@ -151,7 +151,7 @@ router.post('/orders/save', async (req, res) => {
     const user = await User.findOne({ email });
     if (!user) return res.status(404).json({ message: 'User not found' });
 
-    // Validate stock for all items
+    // Validate stock and fetch ProductImage
     for (const item of items) {
       const product = await Customer.findOne({ ProductID: item.ProductID });
       if (!product) {
@@ -167,6 +167,9 @@ router.post('/orders/save', async (req, res) => {
           message: `Insufficient stock for ${product.ProductName}. Only ${availableStock} available.`,
         });
       }
+
+      // Ensure ProductImage is included in the item
+      item.ProductImage = product.ProductImage || ''; // Copy ProductImage from Customer
     }
 
     // Update stock for all items
