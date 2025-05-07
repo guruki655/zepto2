@@ -16,10 +16,10 @@ import ZeptoSkincare from '../images/zeptoSkinCare.png';
 import ZeptoTea from '../images/zeptoTea.png';
 import ZeptoToys from '../images/zeptoToys.png';
 import ZeptoAtta from '../images/zeptoAtta.png';
+import zeptoMakeup from '../images/zeptoMakeup.png';
 import zetpoBanner from '../images/zeptoHomeBanner.webp';
 import zeptoEleBanner from '../images/zeptoEleBanner.webp';
 import zeptoBeautyBanner from '../images/zeptoBeautyBanner.webp';
-import zeptoMakeup from '../images/zeptoMakeup.png';
 import { useCart } from '../contexts/cartContext';
 import '../styles/home.css';
 
@@ -39,11 +39,10 @@ function Home() {
       const res = await axios.get('http://localhost:5000/api/customers');
       setProducts(res.data);
     } catch (err) {
-      console.error('Error fetching products:', err);
+      console.error(err);
     }
   };
 
-  // Map images to category names
   const categoryImages = [
     { src: zeptoVeg, name: 'Vegetables' },
     { src: ZeptoPet, name: 'Pet' },
@@ -94,8 +93,7 @@ function Home() {
   const ProductCard = ({ product }) => {
     const cartProduct = cartItems.find((item) => item.ProductID === product.ProductID);
     const quantity = cartProduct ? cartProduct.quantity : 0;
-    const availableStock = parseInt(product.ProductQuantity);
-    const isOutOfStock = isNaN(availableStock) || availableStock === 0;
+    const isOutOfStock = product.ProductQuantity === 0;
 
     return (
       <div
@@ -103,7 +101,7 @@ function Home() {
         onClick={() => setSelectedProduct(product)}
         style={{ cursor: 'pointer' }}
       >
-        <div className="card h-100">
+        <div className={`card h-100 ${isOutOfStock ? 'out-of-stock' : ''}`}>
           <img
             src={`data:image/png;base64,${product.ProductImage}`}
             className="card-img-top"
@@ -114,15 +112,19 @@ function Home() {
             <h5 className="card-title">{product.ProductName}</h5>
             <p className="card-text">Brand: {product.ProductBrand}</p>
             <p className="card-text">Price: ₹{product.ProductPrice}</p>
-            <p className="card-text">
-              {isOutOfStock ? (
-                <span className="text-danger">Out of Stock</span>
-              ) : (
-                `Stock: ${product.ProductQuantity}`
-              )}
-            </p>
-            {!isOutOfStock ? (
-              cartProduct ? (
+            <div className="card-text">
+              Rating:{' '}
+              {Array.from({ length: Math.floor(product.ProductRating || 1) }, (_, i) => (
+                <i key={i} className="fas fa-star text-warning" />
+              ))}
+              {Array.from({ length: 5 - Math.floor(product.ProductRating || 1) }, (_, i) => (
+                <i key={i + Math.floor(product.ProductRating || 1)} className="far fa-star text-warning" />
+              ))}
+            </div>
+            {(selectedCategory === 'Cafe' || selectedCategory === 'Electronics' || selectedCategory === 'All') && (
+              isOutOfStock ? (
+                <p className="text-danger mt-2">Out of Stock</p>
+              ) : cartProduct ? (
                 <div className="d-flex align-items-center">
                   <button
                     className="btn btn-sm btn-outline-secondary"
@@ -155,7 +157,7 @@ function Home() {
                   Add to Cart
                 </button>
               )
-            ) : null}
+            )}
           </div>
         </div>
       </div>
@@ -163,8 +165,7 @@ function Home() {
   };
 
   const ProductModal = ({ product, onClose }) => {
-    const availableStock = parseInt(product.ProductQuantity);
-    const isOutOfStock = isNaN(availableStock) || availableStock === 0;
+    const isOutOfStock = product.ProductQuantity === 0;
 
     return (
       <div
@@ -211,12 +212,16 @@ function Home() {
               <strong>Price:</strong> ₹{product.ProductPrice}
             </p>
             <p>
-              <strong>Quantity:</strong>{' '}
-              {isOutOfStock ? (
-                <span className="text-danger">Out of Stock</span>
-              ) : (
-                product.ProductQuantity
-              )}
+              <strong>Rating:</strong>{' '}
+              {Array.from({ length: Math.floor(product.ProductRating || 1) }, (_, i) => (
+                <i key={i} className="fas fa-star text-warning" />
+              ))}
+              {Array.from({ length: 5 - Math.floor(product.ProductRating || 1) }, (_, i) => (
+                <i key={i + Math.floor(product.ProductRating || 1)} className="far fa-star text-warning" />
+              ))}
+            </p>
+            <p>
+              <strong>Quantity:</strong> {product.ProductQuantity}
             </p>
             <p>
               <strong>Location:</strong> {product.ProductLocation}
@@ -238,7 +243,9 @@ function Home() {
             </p>
           </div>
           <div className="modal-footer">
-            {!isOutOfStock && (
+            {isOutOfStock ? (
+              <p className="text-danger">Out of Stock</p>
+            ) : (
               <button
                 className="btn btn-primary"
                 onClick={() => {
@@ -321,7 +328,7 @@ function Home() {
             <div className="container-fluid mt-4 mb-4">
               <div className="row">
                 <div className="col-lg-6">
-                  <img
+                  <img onClick={()=>navigate('/category/Electronics')}
                     src={zeptoEleBanner}
                     alt="banner"
                     className="img-fluid"
@@ -329,7 +336,7 @@ function Home() {
                   />
                 </div>
                 <div className="col-lg-6">
-                  <img
+                  <img onClick={()=>navigate('/category/makeup')}
                     src={zeptoBeautyBanner}
                     alt="banner"
                     className="img-fluid"

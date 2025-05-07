@@ -13,13 +13,16 @@ import Cart from './pages/cart.js';
 import PaymentComponent from './pages/payment.js';
 import OrderHistory from './pages/prevOrder.js';
 import CategoryPage from './pages/category.js';
+import Footer from './components/footer.js';
 
 function App() {
   return (
-    <div className="App">
+    <div className="App d-flex flex-column min-vh-100">
       <BrowserRouter>
         <CartProvider>
           <Navbar />
+          <main className="flex-grow-1">
+
           <Routes>
             <Route path="/" element={<Home />} />
             <Route path="/Home" element={<Home />} />
@@ -36,6 +39,9 @@ function App() {
             <Route path="/category/:categoryName" element={<CategoryPage />} />
 
           </Routes>
+          </main>
+          <Footer />
+
         </CartProvider>
       </BrowserRouter>
     </div>

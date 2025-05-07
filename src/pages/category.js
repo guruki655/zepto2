@@ -1,19 +1,19 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
 import axios from 'axios';
-import { useCart } from '../contexts/cartContext'; // Import cart context
+import { useCart } from '../contexts/cartContext';
 import '../styles/category.css';
 
 function CategoryPage() {
-  const { categoryName } = useParams(); // Get category name from URL
+  const { categoryName } = useParams();
   const navigate = useNavigate();
-  const { addToCart, removeFromCart, cartItems } = useCart(); // Cart context
-  const [subcategories, setSubcategories] = useState([]); // Dynamic subcategories
-  const [products, setProducts] = useState([]); // All products for category
-  const [selectedSubcategory, setSelectedSubcategory] = useState(null); // Selected subcategory
-  const [sortOption, setSortOption] = useState('default'); // Sort option state
-  const [loading, setLoading] = useState(true); // Loading state
-  const [error, setError] = useState(null); // Error state
+  const { addToCart, removeFromCart, cartItems } = useCart();
+  const [subcategories, setSubcategories] = useState([]);
+  const [products, setProducts] = useState([]);
+  const [selectedSubcategory, setSelectedSubcategory] = useState(null);
+  const [sortOption, setSortOption] = useState('default');
+  const [loading, setLoading] = useState(true);
+  const [error, setError] = useState(null);
 
   useEffect(() => {
     const fetchData = async () => {
@@ -22,20 +22,14 @@ function CategoryPage() {
         const res = await axios.get('http://localhost:5000/api/customers');
         const allProducts = res.data;
 
-        // Normalize categoryName for case-insensitive matching
         const normalizedCategory = categoryName.toLowerCase();
-
-        // Filter products by ProductType (case-insensitive)
         const filteredProducts = allProducts.filter(
           (product) => product.ProductType.toLowerCase() === normalizedCategory
         );
 
-        // Extract unique ProductSubType values (case-insensitive)
         const filteredSubcategories = [
-          ...new Set(
-            filteredProducts.map((product) => product.ProductSubType)
-          ),
-        ].sort(); // Sort for consistent display
+          ...new Set(filteredProducts.map((product) => product.ProductSubType)),
+        ].sort();
 
         setProducts(filteredProducts);
         setSubcategories(filteredSubcategories);
@@ -50,16 +44,12 @@ function CategoryPage() {
     fetchData();
   }, [categoryName]);
 
-  // ProductCard component (adapted from Home.jsx)
   const ProductCard = ({ product }) => {
     const cartProduct = cartItems.find((item) => item.ProductID === product.ProductID);
     const quantity = cartProduct ? cartProduct.quantity : 0;
 
     return (
-      <div
-        className="col-lg-3"
-        style={{ cursor: 'pointer' }}
-      >
+      <div className="col-lg-3" style={{ cursor: 'pointer' }}>
         <div className="card h-100">
           <img
             src={`data:image/png;base64,${product.ProductImage}`}
@@ -71,6 +61,15 @@ function CategoryPage() {
             <h5 className="card-title">{product.ProductName}</h5>
             <p className="card-text">Brand: {product.ProductBrand}</p>
             <p className="card-text">Price: ₹{product.ProductPrice}</p>
+            <div className="card-text">
+              Rating:{' '}
+              {Array.from({ length: Math.floor(product.ProductRating || 1) }, (_, i) => (
+                <i key={i} className="fas fa-star text-warning" />
+              ))}
+              {Array.from({ length: 5 - Math.floor(product.ProductRating || 1) }, (_, i) => (
+                <i key={i + Math.floor(product.ProductRating || 1)} className="far fa-star text-warning" />
+              ))}
+            </div>
             {cartProduct ? (
               <div className="d-flex align-items-center">
                 <button
@@ -119,18 +118,23 @@ function CategoryPage() {
   displayedProducts = [...displayedProducts].sort((a, b) => {
     const priceA = parseFloat(a.ProductPrice);
     const priceB = parseFloat(b.ProductPrice);
+    const ratingA = parseFloat(a.ProductRating);
+    const ratingB = parseFloat(b.ProductRating);
+
     if (sortOption === 'price-low') {
       return priceA - priceB;
     } else if (sortOption === 'price-high') {
       return priceB - priceA;
+    } else if (sortOption === 'rating-high') {
+      return ratingB - ratingA;
     }
-    return 0; // Default (no sorting)
+    return 0;
   });
 
   return (
     <div className="category-page">
       <div className="zepto-sidebar">
-        <div className="zepto-sidebar-header">
+        <div className="-loop-sidebar-header">
           <h5>{categoryName} Subcategories</h5>
           <button className="btn btn-close" onClick={() => navigate('/')}></button>
         </div>
@@ -179,6 +183,7 @@ function CategoryPage() {
             <option value="default">Sort by: Default</option>
             <option value="price-low">Sort by: Price Low to High</option>
             <option value="price-high">Sort by: Price High to Low</option>
+            <option value="rating-high">Sort by: Rating High to Low</option>
           </select>
         </div>
         {loading ? (

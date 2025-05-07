@@ -31,11 +31,11 @@ router.get('/users', async (req, res) => {
 // POST create new customer (with image)
 router.post('/', upload.single('ProductImage'), async (req, res) => {
   try {
-    const { 
-      ProductID, ProductName, ProductDescription, 
-      ProductLocation, ProductPrice, ProductQuantity, 
-      ProductType, ProductSubType, ProductWeight, ProductShelf, 
-      ProductBrand, ProductMaterial 
+    const {
+      ProductID, ProductName, ProductDescription,
+      ProductLocation, ProductPrice, ProductQuantity,
+      ProductType, ProductSubType, ProductWeight, ProductShelf,
+      ProductBrand, ProductMaterial, ProductRating
     } = req.body;
 
     const ProductImage = req.file ? req.file.buffer.toString('base64') : '';
@@ -53,7 +53,8 @@ router.post('/', upload.single('ProductImage'), async (req, res) => {
       ProductShelf,
       ProductBrand,
       ProductMaterial,
-      ProductImage
+      ProductImage,
+      ProductRating: ProductRating ? parseFloat(ProductRating) : 1 // Default to 1 if not provided
     });
 
     await customer.save();
@@ -71,7 +72,7 @@ router.put('/:id', upload.single('ProductImage'), async (req, res) => {
       ProductID, ProductName, ProductDescription,
       ProductLocation, ProductPrice, ProductQuantity,
       ProductType, ProductSubType, ProductWeight, ProductShelf,
-      ProductBrand, ProductMaterial
+      ProductBrand, ProductMaterial, ProductRating
     } = req.body;
 
     const updateData = {
@@ -86,7 +87,8 @@ router.put('/:id', upload.single('ProductImage'), async (req, res) => {
       ProductWeight,
       ProductShelf,
       ProductBrand,
-      ProductMaterial
+      ProductMaterial,
+      ProductRating: ProductRating ? parseFloat(ProductRating) : undefined
     };
 
     if (req.file) {

@@ -1,0 +1,33 @@
+.footer {
+    background-color: #212529; /* Dark background similar to Zepto */
+  }
+  
+  .footer h5 {
+    font-size: 1.1rem;
+    font-weight: 600;
+  }
+  
+  .footer ul li {
+    margin-bottom: 0.5rem;
+  }
+  
+  .footer a:hover {
+    text-decoration: underline;
+    color: #f8f9fa !important; /* Slightly lighter on hover */
+  }
+  
+  .footer .social-icons a {
+    transition: color 0.2s ease;
+  }
+  
+  .footer .social-icons a:hover {
+    color: #007bff !important; /* Bootstrap primary color on hover */
+  }
+  
+  .footer img {
+    transition: opacity 0.2s ease;
+  }
+  
+  .footer img:hover {
+    opacity: 0.8;
+  }
