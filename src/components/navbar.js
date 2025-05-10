@@ -12,7 +12,8 @@ function Navbar() {
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredProducts, setFilteredProducts] = useState([]);
   const [showSearchDropdown, setShowSearchDropdown] = useState(false);
-  const [location, setLocation] = useState('Select Location');
+  const [location, setLocation] = useState(localStorage.getItem('location') || 'Select Location');
+  const [locationSource, setLocationSource] = useState(localStorage.getItem('locationSource') || 'manual');
   const [showLocationDropdown, setShowLocationDropdown] = useState(false);
   const { cartCount } = useCart();
   const navigate = useNavigate();
@@ -52,41 +53,43 @@ function Navbar() {
     fetchProducts();
   }, []);
 
-  useEffect(() => {
-    const fetchLocation = () => {
-      if (navigator.geolocation) {
-        navigator.geolocation.getCurrentPosition(
-          async (position) => {
-            const { latitude, longitude } = position.coords;
-            try {
-              const response = await axios.get(
-                `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`
-              );
-              const address = response.data.address;
-              const city = address.city || address.town || address.village || 'Unknown City';
-              const state = address.state || '';
-              setLocation(`${city}, ${state}`);
-            } catch (err) {
-              console.error('Error fetching address:', err);
-              setLocation('Select Location (Error)');
-            }
-          },
-          (err) => {
-            console.error('Geolocation error:', err);
-            setLocation('Select Location (Permission Denied)');
-          }
+  const fetchCurrentLocation = async () => {
+    if (navigator.geolocation) {
+      try {
+        const position = await new Promise((resolve, reject) => {
+          navigator.geolocation.getCurrentPosition(resolve, reject);
+        });
+        const { latitude, longitude } = position.coords;
+        const response = await axios.get(
+          `https://nominatim.openstreetmap.org/reverse?format=json&lat=${latitude}&lon=${longitude}`
         );
-      } else {
-        console.error('Geolocation not supported');
-        setLocation('Select Location (Not Supported)');
+        const address = response.data.address;
+        const city = address.city || address.town || address.village || 'Unknown City';
+        const state = address.state || '';
+        const newLocation = `${city}, ${state}`;
+        setLocation(`Current Location: ${newLocation}`);
+        setLocationSource('current');
+        localStorage.setItem('location', `Current Location: ${newLocation}`);
+        localStorage.setItem('locationSource', 'current');
+      } catch (err) {
+        console.error('Geolocation error:', err);
+        setLocation('Select Location (Error)');
+        setLocationSource('manual');
+        localStorage.setItem('location', 'Select Location (Error)');
+        localStorage.setItem('locationSource', 'manual');
       }
-    };
-
-    fetchLocation();
-  }, []);
+    } else {
+      console.error('Geolocation not supported');
+      setLocation('Select Location (Not Supported)');
+      setLocationSource('manual');
+      localStorage.setItem('location', 'Select Location (Not Supported)');
+      localStorage.setItem('locationSource', 'manual');
+    }
+  };
 
   const handleIconClick = () => {
     setShowDropdown(!showDropdown);
+    setShowLocationDropdown(false);
   };
 
   const goToLogin = () => {
@@ -142,10 +145,19 @@ function Navbar() {
 
   const toggleLocationDropdown = () => {
     setShowLocationDropdown(!showLocationDropdown);
+    setShowDropdown(false);
   };
 
   const setManualLocation = (newLocation) => {
     setLocation(newLocation);
+    setLocationSource('manual');
+    localStorage.setItem('location', newLocation);
+    localStorage.setItem('locationSource', 'manual');
+    setShowLocationDropdown(false);
+  };
+
+  const handleCurrentLocation = () => {
+    fetchCurrentLocation();
     setShowLocationDropdown(false);
   };
 
@@ -165,34 +177,43 @@ function Navbar() {
             />
           </div>
           <div className="col-lg-2 position-relative">
-            <p
-              style={{ cursor: 'pointer', color: '#007bff' }}
+            <div
+              style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', color: '#007bff' }}
               onClick={toggleLocationDropdown}
             >
-              {location}
-            </p>
+              <i className="fas fa-map-marker-alt me-2"></i>
+              <span>{location}</span>
+              <i className={`fas fa-caret-${showLocationDropdown ? 'up' : 'down'} ms-1`}></i>
+            </div>
             {showLocationDropdown && (
               <div
                 className="position-absolute bg-white shadow rounded p-2"
-                style={{ top: '50px', left: '0', zIndex: 1000 }}
+                style={{ top: '50px', left: '0', zIndex: 1000, minWidth: '200px' }}
               >
                 <p
-                  style={{ cursor: 'pointer' }}
+                  style={{ cursor: 'pointer', padding: '8px 12px', margin: 0, hover: { backgroundColor: '#f8f9fa' } }}
+                  onClick={handleCurrentLocation}
+                >
+                  <i className="fas fa-location-arrow me-2"></i>Current Location
+                </p>
+                <hr style={{ margin: '4px 0' }} />
+                <p
+                  style={{ cursor: 'pointer', padding: '8px 12px', margin: 0 }}
+                  onClick={() => setManualLocation('Bangalore, KA')}
+                >
+                  Bangalore, KA
+                </p>
+                <p
+                  style={{ cursor: 'pointer', padding: '8px 12px', margin: 0 }}
                   onClick={() => setManualLocation('Mumbai, MH')}
                 >
                   Mumbai, MH
                 </p>
                 <p
-                  style={{ cursor: 'pointer' }}
+                  style={{ cursor: 'pointer', padding: '8px 12px', margin: 0 }}
                   onClick={() => setManualLocation('Delhi, DL')}
                 >
                   Delhi, DL
-                </p>
-                <p
-                  style={{ cursor: 'pointer' }}
-                  onClick={() => setManualLocation('Bangalore, KA')}
-                >
-                  Bangalore, KA
                 </p>
               </div>
             )}
