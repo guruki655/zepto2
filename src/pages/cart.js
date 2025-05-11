@@ -40,7 +40,7 @@ function Cart() {
     },
   ];
 
-  // Bangalore ZIP codes (simplified list for demonstration)
+  // Bangalore ZIP codes
   const bangaloreZipCodes = [
     '560001', '560002', '560003', '560004', '560005', '560006', '560007', '560008', '560009', '560010',
     '560011', '560012', '560013', '560014', '560015', '560016', '560017', '560018', '560019', '560020',
@@ -59,7 +59,7 @@ function Cart() {
   const couponDiscount = appliedCoupon ? appliedCoupon.discount : 0;
   const totalAfterDiscount = cartTotal - baseDiscount - couponDiscount;
 
-  // Fetch saved address when component mounts
+  // Fetch saved address
   useEffect(() => {
     const fetchSavedAddress = async () => {
       try {
@@ -70,11 +70,20 @@ function Cart() {
           headers: { Authorization: `Bearer ${token}` },
         });
         console.log('Fetched saved address:', response.data);
-        setSavedAddress(response.data.address);
+        if (response.data.address) {
+          setSavedAddress(response.data.address);
+          localStorage.setItem('userAddress', JSON.stringify(response.data.address));
+        }
       } catch (err) {
         console.error('Error fetching saved address:', err);
-        const localAddress = JSON.parse(localStorage.getItem('userAddress'));
-        if (localAddress) setSavedAddress(localAddress);
+        try {
+          const localAddress = JSON.parse(localStorage.getItem('userAddress'));
+          if (localAddress && localAddress.addressLine1) {
+            setSavedAddress(localAddress);
+          }
+        } catch (parseErr) {
+          console.error('Error parsing userAddress:', parseErr);
+        }
       }
     };
 
@@ -84,7 +93,7 @@ function Cart() {
   const handleAddressChange = (e) => {
     const { name, value } = e.target;
     setNewAddress((prev) => ({ ...prev, [name]: value }));
-    setAddressError(''); // Clear error on input change
+    setAddressError('');
   };
 
   const handleApplyCoupon = () => {
@@ -117,13 +126,10 @@ function Cart() {
   };
 
   const isValidBangaloreAddress = (address) => {
-    // Check if ZIP code is in Bangalore
     if (!bangaloreZipCodes.includes(address.zipCode)) {
       return false;
     }
-    // Optionally, check if "Bangalore" is in addressLine1 or landmark (case-insensitive)
-    const addressStr = `${address.addressLine1} ${address.landmark}`.toLowerCase();
-    return addressStr.includes('bangalore') || true; // Rely on ZIP code primarily
+    return true; // Rely on ZIP code
   };
 
   const saveAddressAndProceed = async () => {
@@ -134,23 +140,20 @@ function Cart() {
         navigate('/Login');
         return;
       }
-
+  
       let addressToUse = useSavedAddress && savedAddress ? savedAddress : newAddress;
-
+  
       if (!useSavedAddress) {
-        // Validate required fields
         if (!newAddress.addressLine1 || !newAddress.houseNo || !newAddress.building || !newAddress.zipCode) {
           setAddressError('Please fill in all required address fields, including ZIP code.');
           return;
         }
-
-        // Validate Bangalore address
+  
         if (!isValidBangaloreAddress(newAddress)) {
-          setAddressError('This address is not serviceable. Only Bangalore addresses with valid ZIP codes are allowed.');
+          setAddressError('This address is not serviceable. Please use a valid Bangalore ZIP code (e.g., 560001).');
           return;
         }
-
-        // Save new address
+  
         const response = await axios.put(
           'http://localhost:5000/api/customers/users/update-address',
           { address: newAddress },
@@ -160,20 +163,23 @@ function Cart() {
         setSavedAddress(newAddress);
         localStorage.setItem('userAddress', JSON.stringify(newAddress));
         addressToUse = newAddress;
-      } else if (savedAddress && !isValidBangaloreAddress(savedAddress)) {
+      } else if (!savedAddress) {
+        setAddressError('No saved address found. Please add a new address.');
+        return;
+      } else if (!isValidBangaloreAddress(savedAddress)) {
         setAddressError('Saved address is not serviceable. Please add a Bangalore address with a valid ZIP code.');
         return;
       }
-
-      localStorage.setItem('selectedAddress', JSON.stringify(addressToUse));
+  
+      localStorage.setItem('userAddress', JSON.stringify(addressToUse));
       setShowAddressModal(false);
-      navigate('/Payment');
+      // Pass discounted total to PaymentComponent
+      navigate('/payment', { state: { totalAfterDiscount } });
     } catch (err) {
       console.error('Error saving address:', err);
       setAddressError(err.response?.data?.message || 'Failed to save address.');
     }
   };
-
   const handleProceedToCheckout = () => {
     const token = localStorage.getItem('token');
     if (!token) {
@@ -181,10 +187,9 @@ function Cart() {
       navigate('/Login');
       return;
     }
-
+  
     setShowAddressModal(true);
   };
-
   return (
     <div className="container mt-4">
       <h2>Your Cart ({cartCount} items)</h2>

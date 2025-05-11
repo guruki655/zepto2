@@ -7,7 +7,7 @@ const orderSchema = new mongoose.Schema({
       ProductName: { type: String, required: true },
       ProductPrice: { type: Number, required: true },
       ProductQuantity: { type: Number, required: true },
-      ProductImage: { type: String, default: '' }, 
+      ProductImage: { type: String, default: '' },
     },
   ],
   total: { type: Number, required: true },
@@ -19,6 +19,8 @@ const orderSchema = new mongoose.Schema({
     label: { type: String, default: 'Home' },
   },
   createdAt: { type: Date, default: Date.now },
+  paymentStatus: { type: String, default: 'pending', enum: ['pending', 'paid', 'failed'] },
+  stripeSessionId: { type: String },
 });
 
 module.exports = mongoose.model('Order', orderSchema);
