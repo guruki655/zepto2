@@ -49,29 +49,31 @@ function CategoryPage() {
     const quantity = cartProduct ? cartProduct.quantity : 0;
 
     return (
-      <div className="col-lg-3" style={{ cursor: 'pointer' }}>
-        <div className="card h-100">
+      <div className="col-lg-3" style={{ cursor: 'pointer', marginBottom: '20px' }}>
+        <div className="card h-100" style={{ display: 'flex', flexDirection: 'column' }}>
           <img
             src={`data:image/png;base64,${product.ProductImage}`}
             className="card-img-top"
             alt={product.ProductName}
             style={{ height: '200px', objectFit: 'cover' }}
           />
-          <div className="card-body">
-            <h5 className="card-title">{product.ProductName}</h5>
-            <p className="card-text">Brand: {product.ProductBrand}</p>
-            <p className="card-text">Price: ₹{product.ProductPrice}</p>
-            <div className="card-text">
-              Rating:{' '}
-              {Array.from({ length: Math.floor(product.ProductRating || 1) }, (_, i) => (
-                <i key={i} className="fas fa-star text-warning" />
-              ))}
-              {Array.from({ length: 5 - Math.floor(product.ProductRating || 1) }, (_, i) => (
-                <i key={i + Math.floor(product.ProductRating || 1)} className="far fa-star text-warning" />
-              ))}
+          <div className="card-body" style={{ flex: '1 1 auto', display: 'flex', flexDirection: 'column', justifyContent: 'space-between' }}>
+            <div>
+              <h5 className="card-title">{product.ProductName}</h5>
+              <p className="card-text">Brand: {product.ProductBrand}</p>
+              <p className="card-text">Price: ₹{product.ProductPrice}</p>
+              <div className="card-text">
+                Rating:{' '}
+                {Array.from({ length: Math.floor(product.ProductRating || 1) }, (_, i) => (
+                  <i key={i} className="fas fa-star text-warning" />
+                ))}
+                {Array.from({ length: 5 - Math.floor(product.ProductRating || 1) }, (_, i) => (
+                  <i key={i + Math.floor(product.ProductRating || 1)} className="far fa-star text-warning" />
+                ))}
+              </div>
             </div>
             {cartProduct ? (
-              <div className="d-flex align-items-center">
+              <div className="d-flex align-items-center mt-2">
                 <button
                   className="btn btn-sm btn-outline-secondary"
                   onClick={(e) => {
@@ -94,7 +96,7 @@ function CategoryPage() {
               </div>
             ) : (
               <button
-                className="btn btn-primary"
+                className="btn btn-primary mt-2"
                 onClick={(e) => {
                   e.stopPropagation();
                   addToCart(product);
@@ -191,7 +193,7 @@ function CategoryPage() {
         ) : error ? (
           <p className="zepto-sidebar-error">{error}</p>
         ) : displayedProducts.length > 0 ? (
-          <div className="row">
+          <div className="row" key="product-grid" style={{ display: 'flex', flexWrap: 'wrap' }}>
             {displayedProducts.map((product) => (
               <ProductCard key={product._id} product={product} />
             ))}

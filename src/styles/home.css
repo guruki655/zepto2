@@ -1,11 +1,14 @@
+/* home.css */
 .card.out-of-stock {
-    opacity: 0.6;
-    filter: grayscale(80%);
-  }
-  .card.out-of-stock:hover {
-    opacity: 0.8;
-  }
-  .scroll-container {
+  opacity: 0.6;
+  filter: grayscale(80%);
+}
+
+.card.out-of-stock:hover {
+  opacity: 0.8;
+}
+
+.scroll-container {
   display: flex;
   overflow-x: auto;
   gap: 20px;
@@ -31,10 +34,97 @@
 }
 
 .container {
-  overflow-x: hidden; 
+  overflow-x: hidden;
 }
 
 body {
-  overflow-x: hidden; 
+  overflow-x: hidden;
 }
 
+.carousel-container {
+  position: relative;
+  width: 100%;
+  padding: 10px;
+}
+
+.carousel-content {
+  overflow: hidden;
+  width: 100%;
+}
+
+.carousel-content > div {
+  display: flex;
+  transition: transform 0.3s ease; /* Smooth transition */
+}
+
+.carousel-arrow {
+  background: #fff;
+  border: 1px solid #ddd;
+  border-radius: 50%;
+  width: 40px;
+  height: 40px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  z-index: 10;
+}
+
+.carousel-arrow:hover:not(:disabled) {
+  background: #f0f0f0;
+}
+
+.carousel-arrow:disabled {
+  cursor: not-allowed;
+  opacity: 0.5;
+}
+
+.carousel-arrow-left {
+  left: 10px;
+}
+
+.carousel-arrow-right {
+  right: 10px;
+}
+
+@media (max-width: 576px) {
+  .carousel-arrow-left {
+    left: 5px;
+  }
+  .carousel-arrow-right {
+    right: 5px;
+  }
+}
+
+/* CHANGE: Add see-more-link styling */
+.see-more-link {
+  font-size: 1.1rem; /* Slightly smaller than h2, prominent */
+  font-weight: 600; /* Semi-bold for balance */
+  color: #ff6666; /* Light red */
+  text-decoration: underline;
+  cursor: pointer;
+  display: flex;
+  align-items: center; /* Align text and arrow */
+}
+
+.see-more-link:hover {
+  color: #cc5252; /* Darker red on hover */
+  text-decoration: none; /* Remove underline */
+}
+
+.see-more-link .fas {
+  font-size: 0.85rem; /* Slightly larger arrow */
+  margin-left: 10px; /* Increased gap */
+}
+
+/* Ensure responsiveness */
+@media (max-width: 768px) {
+  .d-flex.justify-content-between {
+    flex-direction: row;
+    justify-content: space-between;
+    gap: 10px; /* Prevent crowding */
+  }
+}

@@ -3,6 +3,8 @@ import axios from 'axios';
 
 function AdminDashboard() {
   const [vendors, setVendors] = useState([]);
+  const [orders, setOrders] = useState([]);
+  const [showOrders, setShowOrders] = useState(false); // State to toggle orders table
   const [formData, setFormData] = useState({
     name: '',
     vendorId: '',
@@ -15,6 +17,7 @@ function AdminDashboard() {
 
   useEffect(() => {
     fetchVendors();
+    fetchOrders(); // Fetch orders on component mount
   }, []);
 
   const fetchVendors = async () => {
@@ -38,6 +41,17 @@ function AdminDashboard() {
     } catch (error) {
       console.error('Error fetching vendors:', error);
       setError(error.response?.data?.message || 'Failed to fetch vendors');
+    }
+  };
+
+  const fetchOrders = async () => {
+    try {
+      const orderRes = await axios.get('http://localhost:5000/api/customers/orders/all');
+      setOrders(orderRes.data);
+      setError('');
+    } catch (error) {
+      console.error('Error fetching orders:', error);
+      setError(error.response?.data?.message || 'Failed to fetch orders');
     }
   };
 
@@ -133,11 +147,16 @@ function AdminDashboard() {
     setError('');
   };
 
+  const toggleOrders = () => {
+    setShowOrders(!showOrders);
+  };
+
   return (
     <div className="container mt-4">
       <h2>Admin Dashboard</h2>
       {error && <div className="alert alert-danger">{error}</div>}
 
+      {/* Vendor Form */}
       <div className="mb-4">
         <input
           name="name"
@@ -175,7 +194,9 @@ function AdminDashboard() {
         </button>
       </div>
 
-      <div className="table-responsive">
+      {/* Vendors Table */}
+      <h3>Vendors</h3>
+      <div className="table-responsive mb-5">
         <table className="table table-bordered table-striped">
           <thead>
             <tr>
@@ -224,6 +245,63 @@ function AdminDashboard() {
           </tbody>
         </table>
       </div>
+
+      {/* Show All Order History Button */}
+      <button
+        onClick={toggleOrders}
+        className="btn btn-primary mb-3"
+      >
+        {showOrders ? 'Hide Order History' : 'Show All Order History'}
+      </button>
+
+      {/* Orders Table (Conditionally Rendered) */}
+      {showOrders && (
+        <>
+          <h3>All Customer Orders</h3>
+          <div className="table-responsive">
+            <table className="table table-bordered table-striped">
+              <thead>
+                <tr>
+                  <th>Sl No</th>
+                  <th>Order ID</th>
+                  <th>Customer Email</th>
+                  <th>Customer Name</th>
+                  <th>Total Amount</th>
+                  <th>Items</th>
+                  <th>Address</th>
+                  <th>Payment Status</th>
+                  <th>Order Date</th>
+                </tr>
+              </thead>
+              <tbody>
+                {orders.map((order, index) => (
+                  <tr key={order._id}>
+                    <td>{index + 1}</td>
+                    <td>{order._id}</td>
+                    <td>{order.user?.email || 'N/A'}</td>
+                    <td>{order.user?.name || 'N/A'}</td>
+                    <td>₹{order.total.toFixed(2)}</td>
+                    <td>
+                      {order.items.map((item, idx) => (
+                        <div key={idx}>
+                          {item.ProductName} (Qty: {item.ProductQuantity}, Price: ₹{item.ProductPrice})
+                        </div>
+                      ))}
+                    </td>
+                    <td>
+                      {order.address?.addressLine1
+                        ? `${order.address.houseNo}, ${order.address.addressLine1}, ${order.address.building}`
+                        : 'N/A'}
+                    </td>
+                    <td>{order.paymentStatus}</td>
+                    <td>{new Date(order.createdAt).toLocaleString()}</td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        </>
+      )}
     </div>
   );
 }

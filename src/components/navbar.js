@@ -117,6 +117,11 @@ function Navbar() {
     setShowDropdown(false);
   };
 
+  const goToVendorDashboard = () => {
+    navigate('/VendorDashboard');
+    setShowDropdown(false);
+  };
+
   const redirectToHome = () => {
     navigate('/Home');
   };
@@ -292,6 +297,12 @@ function Navbar() {
                       onClick={goToOrders}
                     >
                       Orders
+                    </p>
+                    <p
+                      style={{ cursor: 'pointer' }}
+                      onClick={goToVendorDashboard}
+                    >
+                      Vendor Dashboard
                     </p>
                     <p
                       style={{ cursor: 'pointer' }}

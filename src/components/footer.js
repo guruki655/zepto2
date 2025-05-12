@@ -92,7 +92,7 @@ function Footer() {
               </a>
             </div>
             <h5 className="mb-3">Follow Us</h5>
-            <div className="d-flex">
+            <div className="d-flex justify-content-center">
               <a href="https://facebook.com" className="text-white me-3" target="_blank" rel="noopener noreferrer">
                 <img src={facebook} alt='facebook logo'/>
               </a>

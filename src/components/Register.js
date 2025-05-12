@@ -33,23 +33,52 @@ function Register() {
     const newErrors = {};
 
     if (isOTPVerified) {
+      // Name validation
       if (!formData.name) {
         newErrors.name = 'Name is required.';
         isValid = false;
+      } else if (!/^[A-Za-z\s]+$/.test(formData.name)) {
+        newErrors.name = 'Name must contain only letters and spaces.';
+        isValid = false;
+      } else if (formData.name.length < 2 || formData.name.length > 50) {
+        newErrors.name = 'Name must be between 2 and 50 characters.';
+        isValid = false;
       }
+
+      // Email validation
       if (!formData.email) {
         newErrors.email = 'Email is required.';
         isValid = false;
+      } else {
+        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+        if (!emailRegex.test(formData.email)) {
+          newErrors.email = 'Please enter a valid email address.';
+          isValid = false;
+        } else if (formData.email.includes('..') || formData.email.startsWith('.') || formData.email.includes('.@')) {
+          newErrors.email = 'Please enter a valid email address.';
+          isValid = false;
+        } else if (formData.email.split('@').length !== 2 || formData.email.split('@')[1].startsWith('-')) {
+          newErrors.email = 'Please enter a valid email address.';
+          isValid = false;
+        }
       }
+
+      // Password validation
       if (!formData.password) {
         newErrors.password = 'Password is required.';
         isValid = false;
+      } else if (formData.password.length < 6) {
+        newErrors.password = 'Password must be at least 6 characters.';
+        isValid = false;
       }
+
+      // Role validation
       if (!formData.role) {
         newErrors.role = 'Role is required.';
         isValid = false;
       }
     } else {
+      // Phone validation
       if (!formData.phone) {
         newErrors.phone = 'Phone number is required.';
         isValid = false;
@@ -57,6 +86,8 @@ function Register() {
         newErrors.phone = 'Phone number must be 10 digits and start with 6-9.';
         isValid = false;
       }
+
+      // OTP validation
       if (!formData.otp) {
         newErrors.otp = 'OTP is required.';
         isValid = false;

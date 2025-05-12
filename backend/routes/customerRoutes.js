@@ -7,13 +7,25 @@ const User = require('../models/userModel');
 const jwt = require('jsonwebtoken');
 const Stripe = require('stripe');
 const bodyParser = require('body-parser');
-// Initialize Stripe
+
 const stripe = Stripe(process.env.STRIPE_SECRET_KEY);
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
 
-
+// GET all orders for admin dashboard
+router.get('/orders/all', async (req, res) => {
+  try {
+    // Fetch all orders and populate user details (email and name)
+    const orders = await Order.find()
+      .populate('user', 'email name')
+      .sort({ createdAt: -1 }); // Sort by most recent first
+    res.status(200).json(orders);
+  } catch (error) {
+    console.error('Error fetching all orders:', error);
+    res.status(500).json({ message: 'Failed to fetch orders', error: error.message });
+  }
+});
 
 router.post(
   '/webhook',

@@ -17,7 +17,8 @@ const PaymentComponent = lazy(() => import('./pages/payment.js'));
 const OrderHistory = lazy(() => import('./pages/prevOrder.js'));
 const CategoryPage = lazy(() => import('./pages/category.js'));
 const Success = lazy(() => import('./pages/success.js'));
-const Cancel = lazy(() => import('./pages/cancel.js'));
+const PanCorner = lazy(() => import('./pages/cancel.js'));
+const Cancel = lazy(() => import('./pages/panCorner.js'));
 
 function App() {
   return (
@@ -40,6 +41,8 @@ function App() {
                 <Route path="/cart" element={<Cart />} />
                 <Route path="/Payment" element={<PaymentComponent />} />
                 <Route path="/orders" element={<OrderHistory />} />
+                <Route path="/orders" element={<OrderHistory />} />
+                <Route path="/PanCorner" element={<PanCorner />} />
                 <Route path="/category/:categoryName" element={<CategoryPage />} />
                 <Route path="/success" element={<Success />} />
                 <Route path="/cancel" element={<Cancel />} />

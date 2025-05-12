@@ -1,0 +1,42 @@
+.coming-soon-simple {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    min-height: 100vh;
+    background: #f8f9fa;
+    font-family: 'Helvetica Neue', Arial, sans-serif;
+    text-align: center;
+    padding: 2rem;
+  }
+  
+  .simple-content {
+    max-width: 600px;
+    padding: 3rem;
+    background: white;
+    border-radius: 8px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.1);
+  }
+  
+  .simple-content h1 {
+    font-size: 3rem;
+    font-weight: 300;
+    color: #333;
+    margin-bottom: 1rem;
+  }
+  
+  .simple-content p {
+    font-size: 1.2rem;
+    color: #666;
+    margin-bottom: 2rem;
+  }
+  
+  .divider {
+    height: 1px;
+    background: #eee;
+    margin: 2rem 0;
+  }
+  
+  .contact {
+    font-size: 1rem;
+    color: #888;
+  }

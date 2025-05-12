@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
 import zeptoVeg from '../images/zeptoVeggie.png';
@@ -17,7 +17,7 @@ import ZeptoTea from '../images/zeptoTea.png';
 import ZeptoToys from '../images/zeptoToys.png';
 import ZeptoAtta from '../images/zeptoAtta.png';
 import zeptoMakeup from '../images/zeptoMakeup.png';
-import zetpoBanner from '../images/zeptoHomeBanner.webp';
+import zeptoBanner from '../images/zeptoHomeBanner.webp';
 import zeptoEleBanner from '../images/zeptoEleBanner.webp';
 import zeptoBeautyBanner from '../images/zeptoBeautyBanner.webp';
 import { useCart } from '../contexts/cartContext';
@@ -29,6 +29,8 @@ function Home() {
   const [selectedProduct, setSelectedProduct] = useState(null);
   const { addToCart, removeFromCart, cartItems } = useCart();
   const navigate = useNavigate();
+  const [scrollPosition, setScrollPosition] = useState(0);
+  const carouselRef = useRef(null);
 
   useEffect(() => {
     fetchProducts();
@@ -44,7 +46,7 @@ function Home() {
   };
 
   const categoryImages = [
-    { src: zeptoVeg, name: 'Vegetables' },
+    { src: zeptoVeg, name: 'FruitsandVegetables' },
     { src: ZeptoPet, name: 'Pet' },
     { src: ZeptoBaby, name: 'Baby' },
     { src: ZeptoHair, name: 'Hair' },
@@ -62,10 +64,50 @@ function Home() {
     { src: zeptoMakeup, name: 'Makeup' },
   ];
 
+  const imageWidth = 100;
+  const marginRight = 20;
+  const scrollAmount = imageWidth + marginRight;
+  const visibleImages = 6;
+  const loopOffset = categoryImages.length * scrollAmount;
+
+  const extendedImages = [
+    ...categoryImages.slice(-visibleImages),
+    ...categoryImages,
+    ...categoryImages.slice(0, visibleImages),
+  ];
+
+  const handlePrev = () => {
+    setScrollPosition((prev) => {
+      const newPosition = prev - scrollAmount;
+      if (newPosition < 0) {
+        return newPosition + loopOffset;
+      }
+      return newPosition;
+    });
+  };
+
+  const handleNext = () => {
+    setScrollPosition((prev) => {
+      const newPosition = prev + scrollAmount;
+      if (newPosition >= loopOffset) {
+        return newPosition - loopOffset;
+      }
+      return newPosition;
+    });
+  };
+
+  useEffect(() => {
+    if (scrollPosition < 0) {
+      setScrollPosition(scrollPosition + loopOffset);
+    } else if (scrollPosition >= loopOffset) {
+      setScrollPosition(scrollPosition - loopOffset);
+    }
+  }, [scrollPosition]);
+
   const electronicProducts = products.filter(
-    (product) => product.ProductType === 'Electronic'
+    (product) => product.ProductType === 'Electronics'
   );
-  const BabyProducts = products.filter(
+  const babyProducts = products.filter(
     (product) => product.ProductType === 'Baby'
   );
   const toyProducts = products.filter(
@@ -89,6 +131,12 @@ function Home() {
   const makeupProducts = products.filter(
     (product) => product.ProductType === 'Makeup'
   );
+  const fruitsAndVegetablesProducts = products.filter(
+    (product) => product.ProductType === 'FruitsandVegetables'
+  );
+
+  // CHANGE: Debug cafeProducts length to verify See More rendering
+  console.log('Cafe Products Count:', cafeProducts.length);
 
   const ProductCard = ({ product }) => {
     const cartProduct = cartItems.find((item) => item.ProductID === product.ProductID);
@@ -121,7 +169,10 @@ function Home() {
                 <i key={i + Math.floor(product.ProductRating || 1)} className="far fa-star text-warning" />
               ))}
             </div>
-            {(selectedCategory === 'Cafe' || selectedCategory === 'Electronics' || selectedCategory === 'All') && (
+            {(selectedCategory === 'Cafe' ||
+              selectedCategory === 'Electronics' ||
+              selectedCategory === 'FruitsandVegetables' ||
+              selectedCategory === 'All') && (
               isOutOfStock ? (
                 <p className="text-danger mt-2">Out of Stock</p>
               ) : cartProduct ? (
@@ -283,8 +334,8 @@ function Home() {
             <a href="#" className="navTags" onClick={() => setSelectedCategory('Toys')}>
               Toys
             </a>
-            <a href="#" className="navTags" onClick={() => setSelectedCategory('Fresh')}>
-              Fresh
+            <a href="#" className="navTags" onClick={() => setSelectedCategory('FruitsandVegetables')}>
+              Fruits & Vegetables
             </a>
             <a href="#" className="navTags" onClick={() => setSelectedCategory('Electronics')}>
               Electronics
@@ -311,24 +362,93 @@ function Home() {
       <div className="row">
         {selectedCategory === 'All' && (
           <div className="col-lg-12">
-            <div style={{ overflowX: 'auto', whiteSpace: 'nowrap', padding: '10px' }}>
-              {categoryImages.map((category, index) => (
-                <img
-                  key={index}
-                  src={category.src}
-                  alt={category.name}
-                  style={{ width: '100px', height: '100px', marginRight: '20px', objectFit: 'contain', cursor: 'pointer' }}
-                  onClick={() => navigate(`/category/${category.name}`)}
-                />
-              ))}
+            <div className="carousel-container" style={{ position: 'relative', padding: '10px' }}>
+              <button
+                className="carousel-arrow carousel-arrow-left"
+                onClick={handlePrev}
+                style={{
+                  position: 'absolute',
+                  left: '10px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  background: '#fff',
+                  border: '1px solid #ddd',
+                  borderRadius: '50%',
+                  width: '40px',
+                  height: '40px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                  zIndex: 10,
+                }}
+              >
+                <i className="fas fa-chevron-left"></i>
+              </button>
+              <div
+                className="carousel-content"
+                style={{
+                  overflow: 'hidden',
+                  width: '100%',
+                }}
+              >
+                <div
+                  ref={carouselRef}
+                  style={{
+                    display: 'flex',
+                    transform: `translateX(-${scrollPosition}px)`,
+                    transition: 'transform 0.3s ease',
+                  }}
+                >
+                  {extendedImages.map((category, index) => (
+                    <img
+                      key={`${category.name}-${index}`}
+                      src={category.src}
+                      alt={category.name}
+                      style={{
+                        width: '100px',
+                        height: '100px',
+                        marginRight: '20px',
+                        objectFit: 'contain',
+                        cursor: 'pointer',
+                        flexShrink: 0,
+                      }}
+                      onClick={() => navigate(`/category/${category.name}`)}
+                    />
+                  ))}
+                </div>
+              </div>
+              <button
+                className="carousel-arrow carousel-arrow-right"
+                onClick={handleNext}
+                style={{
+                  position: 'absolute',
+                  right: '10px',
+                  top: '50%',
+                  transform: 'translateY(-50%)',
+                  background: '#fff',
+                  border: '1px solid #ddd',
+                  borderRadius: '50%',
+                  width: '40px',
+                  height: '40px',
+                  display: 'flex',
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  cursor: 'pointer',
+                  zIndex: 10,
+                }}
+              >
+                <i className="fas fa-chevron-right"></i>
+              </button>
             </div>
             <div className="col-lg-12">
-              <img className="mt-5" src={zetpoBanner} alt="banner" />
+              <img  className="mt-5" src={zeptoBanner} alt="banner" />
             </div>
             <div className="container-fluid mt-4 mb-4">
               <div className="row">
                 <div className="col-lg-6">
-                  <img onClick={()=>navigate('/category/Electronics')}
+                  <img
+                    onClick={() => navigate('/category/Electronics')}
                     src={zeptoEleBanner}
                     alt="banner"
                     className="img-fluid"
@@ -336,7 +456,8 @@ function Home() {
                   />
                 </div>
                 <div className="col-lg-6">
-                  <img onClick={()=>navigate('/category/makeup')}
+                  <img
+                    onClick={() => navigate('/category/Makeup')}
                     src={zeptoBeautyBanner}
                     alt="banner"
                     className="img-fluid"
@@ -345,17 +466,55 @@ function Home() {
                 </div>
               </div>
             </div>
+         
+            <div className="col-lg-12 mb-4">
+              <div className="d-flex justify-content-between align-items-center">
+                <h2>Fruits and Vegetables</h2>
+                {fruitsAndVegetablesProducts.length > 4 && (
+                  <a
+                    href="#"
+                    className="see-more-link"
+                    onClick={() => navigate('/category/FruitsandVegetables')}
+                  >
+                    See More <i className="fas fa-chevron-right ms-2" />
+                  </a>
+                )}
+              </div>
+            </div>
+            {products.length > 0 ? (
+              <div className="row">
+                {fruitsAndVegetablesProducts.slice(0, 4).map((product) => (
+                  <ProductCard key={product._id} product={product} />
+                ))}
+              </div>
+            ) : (
+              <div className="col-lg-12">
+                <p>No products available.</p>
+              </div>
+            )}
           </div>
         )}
 
         {(selectedCategory === 'Cafe' || selectedCategory === 'All') && (
           <>
+            {/* CHANGE: Update See More link with improved UI */}
             <div className="col-lg-12 mb-4">
-              <h2>Cafe Products</h2>
+              <div className="d-flex justify-content-between align-items-center">
+                <h2>Cafe Products</h2>
+                {cafeProducts.length > 4 && (
+                  <a
+                    href="#"
+                    className="see-more-link"
+                    onClick={() => navigate('/category/Cafe')}
+                  >
+                    See More <i className="fas fa-chevron-right ms-2" />
+                  </a>
+                )}
+              </div>
             </div>
             {cafeProducts.length > 0 ? (
               <div className="row">
-                {cafeProducts.map((product) => (
+                {cafeProducts.slice(0, 4).map((product) => (
                   <ProductCard key={product._id} product={product} />
                 ))}
               </div>
@@ -405,20 +564,45 @@ function Home() {
           </>
         )}
 
-        {selectedCategory === 'Fresh' && (
-          <div className="col-lg-12">
-            Fresh
-          </div>
+        {selectedCategory === 'FruitsandVegetables' && (
+          <>
+            <div className="col-lg-12 mb-4">
+              <h2>Fruits and Vegetables</h2>
+            </div>
+            {fruitsAndVegetablesProducts.length > 0 ? (
+              <div className="row">
+                {fruitsAndVegetablesProducts.map((product) => (
+                  <ProductCard key={product._id} product={product} />
+                ))}
+              </div>
+            ) : (
+              <div className="col-lg-12">
+                <p>No Fruits and Vegetables products available.</p>
+              </div>
+            )}
+          </>
         )}
 
         {(selectedCategory === 'Electronics' || selectedCategory === 'All') && (
           <>
+            {/* CHANGE: Update See More link with improved UI */}
             <div className="col-lg-12 mb-4">
-              <h2>Electronics</h2>
+              <div className="d-flex justify-content-between align-items-center">
+                <h2>Electronics</h2>
+                {electronicProducts.length > 4 && (
+                  <a
+                    href="#"
+                    className="see-more-link"
+                    onClick={() => navigate('/category/Electronics')}
+                  >
+                    See More <i className="fas fa-chevron-right ms-2" />
+                  </a>
+                )}
+              </div>
             </div>
             {electronicProducts.length > 0 ? (
               <div className="row">
-                {electronicProducts.map((product) => (
+                {electronicProducts.slice(0, 4).map((product) => (
                   <ProductCard key={product._id} product={product} />
                 ))}
               </div>
@@ -489,7 +673,7 @@ function Home() {
 
         {selectedCategory === 'Deal' && (
           <div className="col-lg-12">
-            Deal
+            <p>Deal</p>
           </div>
         )}
 
@@ -498,9 +682,9 @@ function Home() {
             <div className="col-lg-12 mb-4">
               <h2>Baby Products</h2>
             </div>
-            {BabyProducts.length > 0 ? (
+            {babyProducts.length > 0 ? (
               <div className="row">
-                {BabyProducts.map((product) => (
+                {babyProducts.map((product) => (
                   <ProductCard key={product._id} product={product} />
                 ))}
               </div>
