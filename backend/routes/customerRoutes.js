@@ -43,6 +43,14 @@ router.post(
       return res.status(400).send(`Webhook Error: ${err.message}`);
     }
 
+    if (stripe.webhooks.constructEvent(req.body, sig, webhookSecret));
+    try {
+      event = stripe.webhooks.constructEvent(req.body, sig, webhookSecret);
+    } catch (err) {
+      console.error('Webhook signature verification failed:', err.message);
+      return res.status(400).send(`Webhook Error: ${err.message}`);
+    }
+
     if (event.type === 'checkout.session.completed') {
       const session = event.data.object;
 
@@ -265,10 +273,15 @@ router.get('/:id', async (req, res) => {
 });
 
 // POST create Stripe Checkout session
-
 router.post('/create-checkout-session', async (req, res) => {
   try {
     const { items, email, address, total } = req.body;
+
+    // Validate API_BASE_URL
+    if (!process.env.API_BASE_URL) {
+      console.error('API_BASE_URL is not defined in environment variables');
+      return res.status(500).json({ message: 'Server configuration error: API_BASE_URL is missing' });
+    }
 
     // Validate user
     const user = await User.findOne({ email });
@@ -313,9 +326,9 @@ router.post('/create-checkout-session', async (req, res) => {
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       line_items: lineItems,
-      mode: 'payment',
-      success_url: 'http://localhost:3000/success?session_id={CHECKOUT_SESSION_ID}',
-      cancel_url: 'http://localhost:3000/cancel',
+      mode: '-payment',
+      success_url: `${process.env.API_BASE_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${process.env.API_BASE_URL}/cancel`,
       customer_email: email,
       metadata: {
         items: JSON.stringify(metadataItems), // Exclude ProductImage

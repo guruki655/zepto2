@@ -66,7 +66,8 @@ function Cart() {
         const token = localStorage.getItem('token');
         if (!token) return;
 
-        const response = await axios.get('http://localhost:5000/api/customers/users/address', {
+        console.log('Fetching saved address from:', `${process.env.REACT_APP_API_BASE_URL}/api/customers/users/address`); // Debug log
+        const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/customers/users/address`, {
           headers: { Authorization: `Bearer ${token}` },
         });
         console.log('Fetched saved address:', response.data);
@@ -154,8 +155,9 @@ function Cart() {
           return;
         }
   
+        console.log('Saving new address to:', `${process.env.REACT_APP_API_BASE_URL}/api/customers/users/update-address`); // Debug log
         const response = await axios.put(
-          'http://localhost:5000/api/customers/users/update-address',
+          `${process.env.REACT_APP_API_BASE_URL}/api/customers/users/update-address`,
           { address: newAddress },
           { headers: { Authorization: `Bearer ${token}` } }
         );
@@ -180,6 +182,7 @@ function Cart() {
       setAddressError(err.response?.data?.message || 'Failed to save address.');
     }
   };
+
   const handleProceedToCheckout = () => {
     const token = localStorage.getItem('token');
     if (!token) {
@@ -190,6 +193,7 @@ function Cart() {
   
     setShowAddressModal(true);
   };
+
   return (
     <div className="container mt-4">
       <h2>Your Cart ({cartCount} items)</h2>

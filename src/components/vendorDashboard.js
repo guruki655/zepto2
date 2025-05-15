@@ -34,7 +34,8 @@ function VendorDashboard() {
 
     const fetchProducts = async () => {
         try {
-            const res = await axios.get('http://localhost:5000/api/customers');
+            console.log('Fetching products from:', `${process.env.REACT_APP_API_BASE_URL}/api/customers`); // Debug log
+            const res = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/customers`);
             setProducts(res.data);
         } catch (error) {
             console.error('Error fetching products:', error);
@@ -43,7 +44,8 @@ function VendorDashboard() {
 
     const fetchOrders = async () => {
         try {
-            const res = await axios.get('http://localhost:5000/api/customers/orders/all');
+            console.log('Fetching orders from:', `${process.env.REACT_APP_API_BASE_URL}/api/customers/orders/all`); // Debug log
+            const res = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/customers/orders/all`);
             setOrders(res.data);
         } catch (error) {
             console.error('Error fetching orders:', error);
@@ -92,12 +94,14 @@ function VendorDashboard() {
             }
 
             if (editId) {
-                await axios.put(`http://localhost:5000/api/customers/${editId}`, form, {
+                console.log('Updating product at:', `${process.env.REACT_APP_API_BASE_URL}/api/customers/${editId}`); // Debug log
+                await axios.put(`${process.env.REACT_APP_API_BASE_URL}/api/customers/${editId}`, form, {
                     headers: { 'Content-Type': 'multipart/form-data' }
                 });
                 setEditId(null);
             } else {
-                await axios.post('http://localhost:5000/api/customers', form, {
+                console.log('Adding product at:', `${process.env.REACT_APP_API_BASE_URL}/api/customers`); // Debug log
+                await axios.post(`${process.env.REACT_APP_API_BASE_URL}/api/customers`, form, {
                     headers: { 'Content-Type': 'multipart/form-data' }
                 });
             }
@@ -129,7 +133,8 @@ function VendorDashboard() {
 
     const handleDelete = async (id) => {
         try {
-            await axios.delete(`http://localhost:5000/api/customers/${id}`);
+            console.log('Deleting product at:', `${process.env.REACT_APP_API_BASE_URL}/api/customers/${id}`); // Debug log
+            await axios.delete(`${process.env.REACT_APP_API_BASE_URL}/api/customers/${id}`);
             fetchProducts();
         } catch (error) {
             console.error('Error deleting product:', error);

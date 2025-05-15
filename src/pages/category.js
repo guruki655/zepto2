@@ -19,7 +19,8 @@ function CategoryPage() {
     const fetchData = async () => {
       try {
         setLoading(true);
-        const res = await axios.get('http://localhost:5000/api/customers');
+        console.log('Fetching products from:', `${process.env.REACT_APP_API_BASE_URL}/api/customers`); // Debug log
+        const res = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/customers`);
         const allProducts = res.data;
 
         const normalizedCategory = categoryName.toLowerCase();

@@ -13,9 +13,10 @@ function Footer() {
 
   // Fetch categories from API
   useEffect(() => {
+    console.log('API Base URL:', process.env.REACT_APP_API_BASE_URL); // Debug log
     const fetchCategories = async () => {
       try {
-        const res = await axios.get('http://localhost:5000/api/customers');
+        const res = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/customers`);
         // Extract unique ProductType values
         const uniqueCategories = [...new Set(res.data.map((product) => product.ProductType))].filter(Boolean);
         setCategories(uniqueCategories);
@@ -116,7 +117,7 @@ function Footer() {
               Commodum Groceries Private Limited, Unit no 62, 6th floor, Der Deutsche Parkz, Subhash nagar road, near Nahur railway station, Nahur west, Mumbai - 400078
             </p>
             <p className="mb-0">support@yourapp.com | +91 9152341021</p>
-            <p className="mb-0">&copy; {new Date().getFullYear()} YourApp. All rights reserved.</p>
+            <p className="mb-0">© {new Date().getFullYear()} YourApp. All rights reserved.</p>
           </div>
         </div>
       </div>

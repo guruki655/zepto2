@@ -27,7 +27,8 @@ const PaymentComponent = () => {
         }
 
         if (token) {
-          const response = await axios.get('http://localhost:5000/api/customers/users/address', {
+          console.log('Fetching address from:', `${process.env.REACT_APP_API_BASE_URL}/api/customers/users/address`); // Debug log
+          const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/customers/users/address`, {
             headers: { Authorization: `Bearer ${token}` },
           });
           if (response.data.address) {
@@ -88,7 +89,8 @@ const PaymentComponent = () => {
     console.log('Sending checkout data:', orderData);
 
     try {
-      const response = await axios.post('http://localhost:5000/api/customers/create-checkout-session', orderData);
+      console.log('Creating checkout session at:', `${process.env.REACT_APP_API_BASE_URL}/api/customers/create-checkout-session`); // Debug log
+      const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/api/customers/create-checkout-session`, orderData);
       console.log('Checkout session response:', response.data);
 
       const sessionId = response.data.id;

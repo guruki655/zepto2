@@ -104,7 +104,8 @@ function Register() {
       return;
     }
     try {
-      const response = await axios.post('http://localhost:5000/api/auth/send-otp', { phone: formData.phone });
+      console.log('Sending OTP to:', `${process.env.REACT_APP_API_BASE_URL}/api/auth/send-otp`); // Debug log
+      const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/api/auth/send-otp`, { phone: formData.phone });
       alert(isResend ? 'OTP resent successfully!' : 'OTP sent successfully!');
       setFormData({ ...formData, otp: '' }); // Clear previous OTP input
     } catch (err) {
@@ -122,7 +123,8 @@ function Register() {
 
   const handleOTPValidation = async () => {
     try {
-      const response = await axios.post('http://localhost:5000/api/auth/verify-otp', {
+      console.log('Verifying OTP at:', `${process.env.REACT_APP_API_BASE_URL}/api/auth/verify-otp`); // Debug log
+      const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/api/auth/verify-otp`, {
         phone: formData.phone,
         otp: formData.otp
       });
@@ -148,7 +150,8 @@ function Register() {
     const { name, email, password, role, phone } = formData;
 
     try {
-      const response = await axios.post('http://localhost:5000/api/auth/register', {
+      console.log('Registering at:', `${process.env.REACT_APP_API_BASE_URL}/api/auth/register`); // Debug log
+      const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/api/auth/register`, {
         name,
         email,
         password,

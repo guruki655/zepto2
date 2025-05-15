@@ -30,8 +30,9 @@ const Success = () => {
         }
 
         console.log('Saving order with:', { sessionId, email, address });
+        console.log('Saving order to:', `${process.env.REACT_APP_API_BASE_URL}/api/customers/orders/save`); // Debug log
 
-        const response = await axios.post('http://localhost:5000/api/customers/orders/save', {
+        const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/api/customers/orders/save`, {
           email,
           address,
           sessionId,

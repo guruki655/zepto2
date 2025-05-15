@@ -30,7 +30,8 @@ function ForgotPassword() {
     if (!validateEmail()) return;
 
     try {
-      const response = await axios.post('http://localhost:5000/api/auth/forgot-password', {
+      console.log('Sending OTP to:', `${process.env.REACT_APP_API_BASE_URL}/api/auth/forgot-password`); // Debug log
+      const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/api/auth/forgot-password`, {
         email: formData.email,
       });
       alert(response.data.message);
@@ -47,7 +48,8 @@ function ForgotPassword() {
     }
 
     try {
-      const response = await axios.post('http://localhost:5000/api/auth/verify-otp-reset', {
+      console.log('Verifying OTP at:', `${process.env.REACT_APP_API_BASE_URL}/api/auth/verify-otp-reset`); // Debug log
+      const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/api/auth/verify-otp-reset`, {
         email: formData.email,
         otp: formData.otp,
       });
@@ -68,7 +70,8 @@ function ForgotPassword() {
     }
 
     try {
-      const response = await axios.post('http://localhost:5000/api/auth/reset-password', {
+      console.log('Resetting password at:', `${process.env.REACT_APP_API_BASE_URL}/api/auth/reset-password`); // Debug log
+      const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/api/auth/reset-password`, {
         resetToken,
         newPassword: formData.newPassword,
       });

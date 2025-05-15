@@ -20,7 +20,8 @@ function Login() {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      const res = await axios.post('http://localhost:5000/api/auth/login', formData);
+      console.log('API Base URL:', process.env.REACT_APP_API_BASE_URL); // Debug log
+      const res = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/api/auth/login`, formData);
       console.log('Response data:', res.data);
 
       if (!res.data.email) {

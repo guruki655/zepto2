@@ -18,7 +18,8 @@ const OrderHistory = () => {
           return;
         }
 
-        const response = await axios.get(`http://localhost:5000/api/customers/orders/history/${email}`);
+        console.log('Fetching order history from:', `${process.env.REACT_APP_API_BASE_URL}/api/customers/orders/history/${email}`); // Debug log
+        const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/customers/orders/history/${email}`);
         console.log('Fetched orders:', response.data); // Log to verify ProductImage
         setOrders(response.data);
         setLoading(false);

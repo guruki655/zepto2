@@ -7,7 +7,7 @@ import { useCart } from '../contexts/cartContext';
 function Navbar() {
   const [showDropdown, setShowDropdown] = useState(false);
   const [isLoggedIn, setIsLoggedIn] = useState(false);
-  const [userDetails, setUserDetails] = useState({ name: '', phone: '', email: '' });
+  const [userDetails, setUserDetails] = useState({ name: '', phone: '', email: '', role: 'customer' });
   const [products, setProducts] = useState([]);
   const [searchTerm, setSearchTerm] = useState('');
   const [filteredProducts, setFilteredProducts] = useState([]);
@@ -27,12 +27,13 @@ function Navbar() {
     if (token && email) {
       const fetchUserDetails = async () => {
         try {
-          const res = await axios.get(`http://localhost:5000/api/auth/profile/${email}`);
+          console.log('Fetching user details from:', `${process.env.REACT_APP_API_BASE_URL}/api/auth/profile/${email}`); // Debug log
+          const res = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/auth/profile/${email}`);
           setUserDetails({
             name: res.data.name || 'User',
             phone: res.data.phone || 'N/A',
             email: res.data.email || email,
-            role: res.data.role || 'customer' // Add role to userDetails
+            role: res.data.role || 'customer'
           });
         } catch (err) {
           console.error('Error fetching user details:', err);
@@ -45,7 +46,8 @@ function Navbar() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        const res = await axios.get('http://localhost:5000/api/customers');
+        console.log('Fetching products from:', `${process.env.REACT_APP_API_BASE_URL}/api/customers`); // Debug log
+        const res = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/customers`);
         setProducts(res.data);
       } catch (err) {
         console.error('Error fetching products:', err);
@@ -107,7 +109,7 @@ function Navbar() {
     localStorage.removeItem('token');
     localStorage.removeItem('email');
     setIsLoggedIn(false);
-    setUserDetails({ name: '', phone: '', email: '' });
+    setUserDetails({ name: '', phone: '', email: '', role: 'customer' });
     setShowDropdown(false);
     alert('Logged out successfully!');
     navigate('/');
@@ -284,49 +286,48 @@ function Navbar() {
                 onClick={handleIconClick}
               ></i>
             )}
-          {showDropdown && (
-  <div
-    className="position-absolute bg-white shadow rounded p-2"
-    style={{ top: '50px', right: '0', zIndex: 1000 }}
-  >
-    {isLoggedIn ? (
-      <>
-        <p>{userDetails.phone}</p>
-        <p>{userDetails.email}</p>
-        <p
-          style={{ cursor: 'pointer' }}
-          onClick={goToOrders}
-        >
-          Orders
-        </p>
-        {/* Only show Vendor Dashboard if user is a vendor */}
-        {userDetails.role === 'vendor' && (
-          <p
-            style={{ cursor: 'pointer' }}
-            onClick={goToVendorDashboard}
-          >
-            Vendor Dashboard
-          </p>
-        )}
-        <p
-          style={{ cursor: 'pointer' }}
-          onClick={handleLogout}
-        >
-          Logout
-        </p>
-      </>
-    ) : (
-      <>
-        <p style={{ cursor: 'pointer' }} onClick={goToLogin}>
-          Login
-        </p>
-        <p style={{ cursor: 'pointer' }} onClick={goToRegister}>
-          Register
-        </p>
-      </>
-    )}
-  </div>
-)}
+            {showDropdown && (
+              <div
+                className="position-absolute bg-white shadow rounded p-2"
+                style={{ top: '50px', right: '0', zIndex: 1000 }}
+              >
+                {isLoggedIn ? (
+                  <>
+                    <p>{userDetails.phone}</p>
+                    <p>{userDetails.email}</p>
+                    <p
+                      style={{ cursor: 'pointer' }}
+                      onClick={goToOrders}
+                    >
+                      Orders
+                    </p>
+                    {userDetails.role === 'vendor' && (
+                      <p
+                        style={{ cursor: 'pointer' }}
+                        onClick={goToVendorDashboard}
+                      >
+                        Vendor Dashboard
+                      </p>
+                    )}
+                    <p
+                      style={{ cursor: 'pointer' }}
+                      onClick={handleLogout}
+                    >
+                      Logout
+                    </p>
+                  </>
+                ) : (
+                  <>
+                    <p style={{ cursor: 'pointer' }} onClick={goToLogin}>
+                      Login
+                    </p>
+                    <p style={{ cursor: 'pointer' }} onClick={goToRegister}>
+                      Register
+                    </p>
+                  </>
+                )}
+              </div>
+            )}
           </div>
           <div className="col-lg-1 position-relative">
             <Link to="/cart" className="text-decoration-none text-dark">

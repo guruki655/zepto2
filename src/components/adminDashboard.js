@@ -23,13 +23,13 @@ function AdminDashboard() {
   const fetchVendors = async () => {
     try {
       // Fetch User vendors (role: 'vendor')
-      const userRes = await axios.get('http://localhost:5000/api/auth/users');
+      const userRes = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/auth/users`);
       const userVendors = userRes.data
         .filter(user => user.role === 'vendor')
         .map(user => ({ ...user, source: 'user' }));
 
       // Fetch Vendor collection vendors
-      const vendorRes = await axios.get('http://localhost:5000/api/vendors');
+      const vendorRes = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/vendors`);
       const vendorCollection = vendorRes.data.map(vendor => ({ ...vendor, source: 'vendor' }));
 
       // Combine and sort by name
@@ -46,7 +46,7 @@ function AdminDashboard() {
 
   const fetchOrders = async () => {
     try {
-      const orderRes = await axios.get('http://localhost:5000/api/customers/orders/all');
+      const orderRes = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/customers/orders/all`);
       setOrders(orderRes.data);
       setError('');
     } catch (error) {
@@ -69,7 +69,7 @@ function AdminDashboard() {
       try {
         console.log('Updating user with data:', formData, 'and editId:', editId);
         const updateResponse = await axios.put(
-          `http://localhost:5000/api/auth/users/${editId}`,
+          `${process.env.REACT_APP_API_BASE_URL}/api/auth/users/${editId}`,
           { licenseNumber: formData.licenseNumber }
         );
         console.log('User updated:', updateResponse.data);
@@ -93,13 +93,13 @@ function AdminDashboard() {
         console.log('Submitting vendor with data:', formData, 'and editId:', editId);
         if (editId) {
           const updateResponse = await axios.put(
-            `http://localhost:5000/api/vendors/${editId}`,
+            `${process.env.REACT_APP_API_BASE_URL}/api/vendors/${editId}`,
             formData
           );
           console.log('Vendor updated:', updateResponse.data);
           alert('Vendor updated successfully!');
         } else {
-          const createResponse = await axios.post('http://localhost:5000/api/vendors', formData);
+          const createResponse = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/api/vendors`, formData);
           console.log('Vendor created:', createResponse.data);
           alert('Vendor added successfully!');
         }
@@ -125,7 +125,7 @@ function AdminDashboard() {
         setError('Cannot delete registered vendors');
         return;
       }
-      await axios.delete(`http://localhost:5000/api/vendors/${id}`);
+      await axios.delete(`${process.env.REACT_APP_API_BASE_URL}/api/vendors/${id}`);
       alert('Vendor deleted successfully!');
       setError('');
       fetchVendors();
