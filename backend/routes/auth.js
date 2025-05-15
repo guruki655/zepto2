@@ -283,7 +283,8 @@ router.post('/forgot-password', async (req, res) => {
       res.json({
         name: user.name,
         email: user.email,
-        phone: user.phone
+        phone: user.phone,
+        role: user.role 
       });
     } catch (err) {
       res.status(500).json({ message: err.message });

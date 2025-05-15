@@ -23,7 +23,7 @@ function Navbar() {
     const token = localStorage.getItem('token');
     const email = localStorage.getItem('email');
     setIsLoggedIn(!!token);
-
+  
     if (token && email) {
       const fetchUserDetails = async () => {
         try {
@@ -31,7 +31,8 @@ function Navbar() {
           setUserDetails({
             name: res.data.name || 'User',
             phone: res.data.phone || 'N/A',
-            email: res.data.email || email
+            email: res.data.email || email,
+            role: res.data.role || 'customer' // Add role to userDetails
           });
         } catch (err) {
           console.error('Error fetching user details:', err);
@@ -283,46 +284,49 @@ function Navbar() {
                 onClick={handleIconClick}
               ></i>
             )}
-            {showDropdown && (
-              <div
-                className="position-absolute bg-white shadow rounded p-2"
-                style={{ top: '50px', right: '0', zIndex: 1000 }}
-              >
-                {isLoggedIn ? (
-                  <>
-                    <p>{userDetails.phone}</p>
-                    <p>{userDetails.email}</p>
-                    <p
-                      style={{ cursor: 'pointer' }}
-                      onClick={goToOrders}
-                    >
-                      Orders
-                    </p>
-                    <p
-                      style={{ cursor: 'pointer' }}
-                      onClick={goToVendorDashboard}
-                    >
-                      Vendor Dashboard
-                    </p>
-                    <p
-                      style={{ cursor: 'pointer' }}
-                      onClick={handleLogout}
-                    >
-                      Logout
-                    </p>
-                  </>
-                ) : (
-                  <>
-                    <p style={{ cursor: 'pointer' }} onClick={goToLogin}>
-                      Login
-                    </p>
-                    <p style={{ cursor: 'pointer' }} onClick={goToRegister}>
-                      Register
-                    </p>
-                  </>
-                )}
-              </div>
-            )}
+          {showDropdown && (
+  <div
+    className="position-absolute bg-white shadow rounded p-2"
+    style={{ top: '50px', right: '0', zIndex: 1000 }}
+  >
+    {isLoggedIn ? (
+      <>
+        <p>{userDetails.phone}</p>
+        <p>{userDetails.email}</p>
+        <p
+          style={{ cursor: 'pointer' }}
+          onClick={goToOrders}
+        >
+          Orders
+        </p>
+        {/* Only show Vendor Dashboard if user is a vendor */}
+        {userDetails.role === 'vendor' && (
+          <p
+            style={{ cursor: 'pointer' }}
+            onClick={goToVendorDashboard}
+          >
+            Vendor Dashboard
+          </p>
+        )}
+        <p
+          style={{ cursor: 'pointer' }}
+          onClick={handleLogout}
+        >
+          Logout
+        </p>
+      </>
+    ) : (
+      <>
+        <p style={{ cursor: 'pointer' }} onClick={goToLogin}>
+          Login
+        </p>
+        <p style={{ cursor: 'pointer' }} onClick={goToRegister}>
+          Register
+        </p>
+      </>
+    )}
+  </div>
+)}
           </div>
           <div className="col-lg-1 position-relative">
             <Link to="/cart" className="text-decoration-none text-dark">
