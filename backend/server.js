@@ -19,7 +19,7 @@ app.use('/api/vendors', vendorRoutes);
 app.use('/api/customers', customerRoutes);
 app.use('/uploads', express.static('uploads'));
 
-const MONGODB_URI = process.env.MONGODB_URI || 'mongodb://127.0.0.1:27017/zepto2';
+const MONGODB_URI = process.env.MONGODB_URI || 'mongodb+srv://gurukiran655:TOvZkpHYvvHkksF2@cluster0.rrmyl2c.mongodb.net/';
 mongoose.connect(MONGODB_URI, {
   useNewUrlParser: true,
   useUnifiedTopology: true,
