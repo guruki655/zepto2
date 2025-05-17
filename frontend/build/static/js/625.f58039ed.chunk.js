@@ -1,0 +1,2 @@
+"use strict";(self.webpackChunkzepto2=self.webpackChunkzepto2||[]).push([[625],{3625:(e,n,t)=>{t.r(n),t.d(n,{default:()=>c});t(5043);var a=t(8231),s=t(579);const c=function(){const e=(0,a.Zp)();return(0,s.jsxs)("div",{className:"container mt-5",children:[(0,s.jsx)("h2",{children:"Payment Canceled"}),(0,s.jsx)("p",{children:"Your payment was not completed. Please try again."}),(0,s.jsx)("button",{className:"btn btn-primary",onClick:()=>e("/payment"),children:"Try Again"})]})}}}]);
+//# sourceMappingURL=625.f58039ed.chunk.js.map
