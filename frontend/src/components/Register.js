@@ -104,7 +104,7 @@ function Register() {
       return;
     }
     try {
-      console.log('Sending OTP to:', `${process.env.REACT_APP_API_BASE_URL}/api/auth/send-otp`); // Debug log
+      console.log('Sending OTP to:', `${process.env.REACT_APP_API_BASE_URL}:5000/api/auth/send-otp`); // Debug log
       const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/api/auth/send-otp`, { phone: formData.phone });
       alert(isResend ? 'OTP resent successfully!' : 'OTP sent successfully!');
       setFormData({ ...formData, otp: '' }); // Clear previous OTP input
