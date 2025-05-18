@@ -6,11 +6,12 @@ require('dotenv').config();
 const vendorRoutes = require('./routes/vendorRoutes');
 const customerRoutes = require('./routes/customerRoutes');
 const authRoutes = require('./routes/auth');
-const path =require("path");
-// const _dirname=path.dirname("")
-// const buildpath=path.join(_dirname,"/build")
-// app.use(express.static(buildpath))
-// const root = ReactDOM.createRoot(document.getElementById('root'));
+const path = require('path');
+app.use(express.static(path.join(__dirname, '../frontend/build')));
+app.get('*', (req, res) => {
+  res.sendFile(path.join(__dirname, '../frontend/build/index.html'));
+});
+
 const app = express();
 
 app.use(cors());
