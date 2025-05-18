@@ -14,31 +14,31 @@ router.post('/login', async (req, res) => {
     // Check if the user exists
     const user = await User.findOne({ email });
     if (!user) {
-      return res.status(400).json({ message: 'User not found' });
+      return res.status(400).json({ message:'User not found' });
     }
 
     // Compare hashed password with input
     const isMatch = await bcrypt.compare(password, user.password);
     if (!isMatch) {
-      return res.status(400).json({ message: 'Invalid credentials' });
+      return res.status(400).json({ message:'Invalid credentials' });
     }
 
     // Generate JWT token
     const token = jwt.sign(
-      { userId: user._id, role: user.role },
+      { userId:user._id, role:user.role },
       'gkr103055',
-      { expiresIn: '1h' }
+      { expiresIn:'1h' }
     );
 
     // Respond with token, role, userId, and email
     res.json({
       token,
-      role: user.role,
-      userId: user._id,
-      email: user.email // Add email to the response
+      role:user.role,
+      userId:user._id,
+      email:user.email // Add email to the response
     });
   } catch (err) {
-    res.status(500).json({ message: err.message });
+    res.status(500).json({ message:err.message });
   }
 });
 
@@ -48,7 +48,7 @@ router.get('/users', async (req, res) => {
         const users = await User.find();  // Fetch all users
         res.json(users);
     } catch (err) {
-        res.status(500).json({ message: err.message });
+        res.status(500).json({ message:err.message });
     }
 });
 
@@ -56,29 +56,29 @@ router.get('/users', async (req, res) => {
 router.put('/users/:id', async (req, res) => {
   try {
     if (!mongoose.isValidObjectId(req.params.id)) {
-      return res.status(400).json({ message: 'Invalid user ID' });
+      return res.status(400).json({ message:'Invalid user ID' });
     }
     const { licenseNumber } = req.body;
     if (!licenseNumber) {
-      return res.status(400).json({ message: 'License number is required' });
+      return res.status(400).json({ message:'License number is required' });
     }
 
     const updateData = { licenseNumber };
     const user = await User.findByIdAndUpdate(
       req.params.id,
-      { $set: updateData },
-      { new: true, runValidators: true }
+      { $set:updateData },
+      { new:true, runValidators:true }
     );
     if (!user) {
-      return res.status(404).json({ message: 'User not found' });
+      return res.status(404).json({ message:'User not found' });
     }
     res.json(user);
   } catch (err) {
     console.error('Error updating user:', err);
     if (err.code === 11000) {
-      return res.status(400).json({ message: 'License number already exists' });
+      return res.status(400).json({ message:'License number already exists' });
     }
-    res.status(400).json({ message: err.message });
+    res.status(400).json({ message:err.message });
   }
 });
 // Register Route
@@ -90,13 +90,13 @@ router.post('/register', async (req, res) => {
 
     if (!name || !email || !password || !role || !phone) {
       return res.status(400).json({ 
-        message: 'Missing required fields', 
-        received: req.body 
+        message:'Missing required fields', 
+        received:req.body 
       });
-    }
+    } 
 
     const existingUser = await User.findOne({ email });
-    if (existingUser) return res.status(400).json({ message: 'User already exists' });
+    if (existingUser) return res.status(400).json({ message:'User already exists' });
 
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
@@ -114,7 +114,7 @@ router.post('/register', async (req, res) => {
     const newUser = new User({
       name,
       email,
-      password: hashedPassword,
+      password:hashedPassword,
       role,
       phone,
       vendorId,
@@ -123,13 +123,13 @@ router.post('/register', async (req, res) => {
     });
 
     await newUser.save();
-    res.status(201).json({ message: 'User created successfully' });
+    res.status(201).json({ message:'User created successfully' });
   } catch (err) {
     console.error('Registration error:', err);
     if (err.code === 11000) {
-      return res.status(400).json({ message: 'Email or license number already exists' });
+      return res.status(400).json({ message:'Email or license number already exists' });
     }
-    res.status(500).json({ message: err.message });
+    res.status(500).json({ message:err.message });
   }
 });
 // Send OTP route
@@ -142,9 +142,9 @@ router.post('/register', async (req, res) => {
 //         await otpRecord.save();
 
 //         // Here you would integrate your SMS service to send the OTP
-//         res.status(200).json({ message: 'OTP sent successfully' });
+//         res.status(200).json({ message:'OTP sent successfully' });
 //     } catch (err) {
-//         res.status(500).json({ message: 'Failed to send OTP' });
+//         res.status(500).json({ message:'Failed to send OTP' });
 //     }
 // });
 
@@ -155,12 +155,12 @@ router.post('/verify-otp', async (req, res) => {
     try {
         const otpRecord = await OTP.findOne({ phone, otp });
         if (!otpRecord) {
-            return res.status(400).json({ success: false, message: 'Invalid OTP' });
+            return res.status(400).json({ success:false, message:'Invalid OTP' });
         }
         
-        res.status(200).json({ success: true, message: 'OTP verified successfully' });
+        res.status(200).json({ success:true, message:'OTP verified successfully' });
     } catch (err) {
-        res.status(500).json({ message: 'Error verifying OTP' });
+        res.status(500).json({ message:'Error verifying OTP' });
     }
 });
 
@@ -175,28 +175,28 @@ router.post('/forgot-password', async (req, res) => {
       console.log('Found user:', user);
   
       if (!user) {
-        return res.status(404).json({ message: 'User not found' });
+        return res.status(404).json({ message:'User not found' });
       }
   
       if (!user.phone) {
-        return res.status(400).json({ message: 'User has no registered phone number' });
+        return res.status(400).json({ message:'User has no registered phone number' });
       }
   
       const otp = Math.floor(100000 + Math.random() * 900000).toString();
       console.log('Generated OTP:', otp);
   
       // Delete any existing OTP for this phone
-      await OTP.deleteOne({ phone: user.phone });
+      await OTP.deleteOne({ phone:user.phone });
   
-      const otpRecord = new OTP({ phone: user.phone, otp });
+      const otpRecord = new OTP({ phone:user.phone, otp });
       await otpRecord.save();
       console.log('Created OTP record:', otpRecord);
   
       console.log(`OTP ${otp} sent to ${user.phone}`);
-      res.status(200).json({ message: 'OTP sent to your registered phone number' });
+      res.status(200).json({ message:'OTP sent to your registered phone number' });
     } catch (err) {
       console.error('Forgot password error:', err);
-      res.status(500).json({ message: 'Failed to send OTP', error: err.message });
+      res.status(500).json({ message:'Failed to send OTP', error:err.message });
     }
   });
   // Verify OTP for Password Reset
@@ -206,19 +206,19 @@ router.post('/forgot-password', async (req, res) => {
     try {
       const user = await User.findOne({ email });
       if (!user) {
-        return res.status(404).json({ message: 'User not found' });
+        return res.status(404).json({ message:'User not found' });
       }
   
-      const otpRecord = await OTP.findOne({ phone: user.phone, otp });
+      const otpRecord = await OTP.findOne({ phone:user.phone, otp });
       if (!otpRecord) {
-        return res.status(400).json({ success: false, message: 'Invalid OTP' });
+        return res.status(400).json({ success:false, message:'Invalid OTP' });
       }
   
       // Generate a reset token (valid for 10 minutes)
-      const resetToken = jwt.sign({ userId: user._id }, 'gkr103055', { expiresIn: '10m' });
-      res.status(200).json({ success: true, resetToken, message: 'OTP verified successfully' });
+      const resetToken = jwt.sign({ userId:user._id }, 'gkr103055', { expiresIn:'10m' });
+      res.status(200).json({ success:true, resetToken, message:'OTP verified successfully' });
     } catch (err) {
-      res.status(500).json({ message: 'Error verifying OTP' });
+      res.status(500).json({ message:'Error verifying OTP' });
     }
   });
   
@@ -230,7 +230,7 @@ router.post('/forgot-password', async (req, res) => {
       const decoded = jwt.verify(resetToken, 'gkr103055');
       const user = await User.findById(decoded.userId);
       if (!user) {
-        return res.status(404).json({ message: 'User not found' });
+        return res.status(404).json({ message:'User not found' });
       }
   
       const salt = await bcrypt.genSalt(10);
@@ -238,12 +238,12 @@ router.post('/forgot-password', async (req, res) => {
       user.password = hashedPassword;
       await user.save();
   
-      res.status(200).json({ message: 'Password reset successfully' });
+      res.status(200).json({ message:'Password reset successfully' });
     } catch (err) {
       if (err.name === 'TokenExpiredError') {
-        return res.status(400).json({ message: 'Reset token expired' });
+        return res.status(400).json({ message:'Reset token expired' });
       }
-      res.status(500).json({ message: 'Error resetting password' });
+      res.status(500).json({ message:'Error resetting password' });
     }
   });
   router.post('/send-otp', async (req, res) => {
@@ -254,7 +254,7 @@ router.post('/forgot-password', async (req, res) => {
       // Check if phone is already registered (optional, based on your requirement)
       const existingUser = await User.findOne({ phone });
       if (existingUser) {
-        return res.status(400).json({ message: 'Phone number already registered' });
+        return res.status(400).json({ message:'Phone number already registered' });
       }
   
       // Delete any existing OTP for this phone
@@ -264,10 +264,10 @@ router.post('/forgot-password', async (req, res) => {
       await otpRecord.save();
   
       console.log(`OTP ${otp} sent to ${phone}`); // Mock SMS
-      res.status(200).json({ message: 'OTP sent successfully' });
+      res.status(200).json({ message:'OTP sent successfully' });
     } catch (err) {
       console.error('Send OTP error:', err);
-      res.status(500).json({ message: 'Failed to send OTP', error: err.message });
+      res.status(500).json({ message:'Failed to send OTP', error:err.message });
     }
   });
 
@@ -278,16 +278,16 @@ router.post('/forgot-password', async (req, res) => {
       const { email } = req.params;
       const user = await User.findOne({ email });
       if (!user) {
-        return res.status(404).json({ message: 'User not found' });
+        return res.status(404).json({ message:'User not found' });
       }
       res.json({
-        name: user.name,
-        email: user.email,
-        phone: user.phone,
-        role: user.role 
+        name:user.name,
+        email:user.email,
+        phone:user.phone,
+        role:user.role 
       });
     } catch (err) {
-      res.status(500).json({ message: err.message });
+      res.status(500).json({ message:err.message });
     }
   });
 module.exports = router;

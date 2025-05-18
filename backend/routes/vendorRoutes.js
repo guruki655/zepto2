@@ -10,7 +10,7 @@ router.get('/', async (req, res) => {
     res.json(vendors);
   } catch (err) {
     console.error('Error fetching vendors:', err);
-    res.status(500).json({ message: 'Failed to fetch vendors', error: err.message });
+    res.status(500).json({ message:'Failed to fetch vendors', error:err.message });
   }
 });
 
@@ -18,16 +18,16 @@ router.get('/', async (req, res) => {
 router.get('/:id', async (req, res) => {
   try {
     if (!mongoose.isValidObjectId(req.params.id)) {
-      return res.status(400).json({ message: 'Invalid vendor ID' });
+      return res.status(400).json({ message:'Invalid vendor ID' });
     }
     const vendor = await Vendor.findById(req.params.id);
     if (!vendor) {
-      return res.status(404).json({ message: 'Vendor not found' });
+      return res.status(404).json({ message:'Vendor not found' });
     }
     res.json(vendor);
   } catch (err) {
     console.error('Error fetching vendor by ID:', err);
-    res.status(500).json({ message: 'Failed to fetch vendor', error: err.message });
+    res.status(500).json({ message:'Failed to fetch vendor', error:err.message });
   }
 });
 
@@ -36,7 +36,7 @@ router.post('/', async (req, res) => {
   try {
     const { name, vendorId, address, licenseNumber } = req.body;
     if (!name || !vendorId || !address || !licenseNumber) {
-      return res.status(400).json({ message: 'All fields are required' });
+      return res.status(400).json({ message:'All fields are required' });
     }
     const vendor = new Vendor({ name, vendorId, address, licenseNumber });
     await vendor.save();
@@ -44,9 +44,9 @@ router.post('/', async (req, res) => {
   } catch (err) {
     console.error('Error creating vendor:', err);
     if (err.code === 11000) {
-      return res.status(400).json({ message: 'Vendor ID or license number already exists' });
+      return res.status(400).json({ message:'Vendor ID or license number already exists' });
     }
-    res.status(400).json({ message: err.message });
+    res.status(400).json({ message:err.message });
   }
 });
 
@@ -54,7 +54,7 @@ router.post('/', async (req, res) => {
 router.put('/:id', async (req, res) => {
   try {
     if (!mongoose.isValidObjectId(req.params.id)) {
-      return res.status(400).json({ message: 'Invalid vendor ID' });
+      return res.status(400).json({ message:'Invalid vendor ID' });
     }
     const { name, vendorId, address, licenseNumber } = req.body;
     const updateData = {};
@@ -65,19 +65,19 @@ router.put('/:id', async (req, res) => {
 
     const vendor = await Vendor.findByIdAndUpdate(
       req.params.id,
-      { $set: updateData },
-      { new: true, runValidators: true }
+      { $set:updateData },
+      { new:true, runValidators:true }
     );
     if (!vendor) {
-      return res.status(404).json({ message: 'Vendor not found' });
+      return res.status(404).json({ message:'Vendor not found' });
     }
     res.json(vendor);
   } catch (err) {
     console.error('Error updating vendor:', err);
     if (err.code === 11000) {
-      return res.status(400).json({ message: 'Vendor ID or license number already exists' });
+      return res.status(400).json({ message:'Vendor ID or license number already exists' });
     }
-    res.status(400).json({ message: err.message });
+    res.status(400).json({ message:err.message });
   }
 });
 
@@ -85,16 +85,16 @@ router.put('/:id', async (req, res) => {
 router.delete('/:id', async (req, res) => {
   try {
     if (!mongoose.isValidObjectId(req.params.id)) {
-      return res.status(400).json({ message: 'Invalid vendor ID' });
+      return res.status(400).json({ message:'Invalid vendor ID' });
     }
     const vendor = await Vendor.findByIdAndDelete(req.params.id);
     if (!vendor) {
-      return res.status(404).json({ message: 'Vendor not found' });
+      return res.status(404).json({ message:'Vendor not found' });
     }
-    res.json({ message: 'Vendor deleted' });
+    res.json({ message:'Vendor deleted' });
   } catch (err) {
     console.error('Error deleting vendor:', err);
-    res.status(500).json({ message: 'Failed to delete vendor', error: err.message });
+    res.status(500).json({ message:'Failed to delete vendor', error:err.message });
   }
 });
 
