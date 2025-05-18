@@ -19,7 +19,7 @@ app.use('/api/customers', customerRoutes);
 app.use('/uploads', express.static('uploads'));
 
 // Connect to MongoDB
-const MONGODB_URI = 'mongodb+srv://gurukiran655:AORDVtICSFbGQcw2@cluster0.rrmyl2c.mongodb.net/'
+const MONGODB_URI = 'mongodb+srv://gurukiran655:AORDVtICSFbGQcw2@cluster0.rrmyl2c.mongodb.net/yourDatabaseName?retryWrites=true&w=majority';
 mongoose.connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
   .then(() => console.log('Connected to MongoDB'))
   .catch(err => console.error('MongoDB connection error:', err));
