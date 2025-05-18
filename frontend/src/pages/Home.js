@@ -39,8 +39,8 @@ function Home() {
 
   const fetchProducts = async () => {
     try {
-      console.log('Fetching products from:', `${API_BASE}:5000/api/customers`); // Debug log
-      const res = await axios.get(`${API_BASE}:5000/api/customers`);
+      console.log('Fetching products from:', `${process.env.REACT_APP_API_BASE_URL}/api/customers`); // Debug log
+      const res = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/customers`);
       setProducts(res.data);
     } catch (err) {
       console.error(err);
