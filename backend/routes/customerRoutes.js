@@ -5,10 +5,10 @@ const multer = require('multer');
 const Order = require('../models/orderModel');
 const User = require('../models/userModel');
 const jwt = require('jsonwebtoken');
-const Stripe  = require('stripe');
+const Stripe = require('stripe');
 const bodyParser = require('body-parser');
 
-const stripe  = new Stripe  ('sk_test_51RNEmFPxiXl6gYuTjcWU42o2LsvLLygdJE5aOx5d3a9frYUUmjbvC4zH7oWBeIl6YcVSDcJrWMm1CbKREYOaCwNH00OAnuYUzr')
+const stripe = new Stripe('sk_test_51RNEmFPxiXl6gYuTjcWU42o2LsvLLygdJE5aOx5d3a9frYUUmjbvC4zH7oWBeIl6YcVSDcJrWMm1CbKREYOaCwNH00OAnuYUzr');
 
 const storage = multer.memoryStorage();
 const upload = multer({ storage: storage });
@@ -16,10 +16,9 @@ const upload = multer({ storage: storage });
 // GET all orders for admin dashboard
 router.get('/orders/all', async (req, res) => {
   try {
-    // Fetch all orders and populate user details (email and name)
     const orders = await Order.find()
       .populate('user', 'email name')
-      .sort({ createdAt: -1 }); // Sort by most recent first
+      .sort({ createdAt: -1 });
     res.status(200).json(orders);
   } catch (error) {
     console.error('Error fetching all orders:', error);
@@ -27,6 +26,7 @@ router.get('/orders/all', async (req, res) => {
   }
 });
 
+// Webhook handler for Stripe events
 router.post(
   '/webhook',
   bodyParser.raw({ type: 'application/json' }),
@@ -42,8 +42,6 @@ router.post(
       console.error('Webhook signature verification failed:', err.message);
       return res.status(400).send(`Webhook Error: ${err.message}`);
     }
-
-  
 
     if (event.type === 'checkout.session.completed') {
       const session = event.data.object;
@@ -85,7 +83,6 @@ router.post(
               message: `Insufficient stock for ${product.ProductName}. Only ${availableStock} available.`,
             });
           }
-          // Add ProductImage and include in valid items
           item.ProductImage = product.ProductImage || '';
           validItems.push(item);
         }
@@ -310,13 +307,19 @@ router.post('/create-checkout-session', async (req, res) => {
       ProductQuantity,
     }));
 
+    // Use FRONTEND_URL from environment, with a fallback
+    const frontendUrl = process.env.FRONTEND_URL || 'http://15.207.109.249';
+    if (!frontendUrl.startsWith('http://') && !frontendUrl.startsWith('https://')) {
+      throw new Error('FRONTEND_URL must start with http:// or https://');
+    }
+
     // Create Stripe session
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       line_items: lineItems,
-      mode: 'payment', // Changed from '-payment' to 'payment'
-      success_url: `${process.env.FRONTEND_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.FRONTEND_URL}/cancel`,
+      mode: 'payment',
+      success_url: `${frontendUrl}/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${frontendUrl}/cancel`,
       customer_email: email,
       metadata: {
         items: JSON.stringify(metadataItems),
@@ -333,7 +336,6 @@ router.post('/create-checkout-session', async (req, res) => {
   }
 });
 
-// POST save order (modified to verify Stripe payment)
 // POST save order (modified to verify Stripe payment)
 router.post('/orders/save', async (req, res) => {
   try {
@@ -422,7 +424,6 @@ router.post('/orders/save', async (req, res) => {
     res.status(500).json({ message: 'Failed to save order', error: error.message });
   }
 });
-
 
 // GET order history
 router.get('/orders/history/:email', async (req, res) => {

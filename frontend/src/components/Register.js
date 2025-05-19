@@ -248,7 +248,7 @@ function Register() {
                 name="password"
                 className="form-control"
                 placeholder="Password"
-                value={formData.password}
+                value={formData.password} 
                 onChange={handleChange}
                 required
               />

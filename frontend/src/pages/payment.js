@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useCart } from '../contexts/cartContext';
-import { useNavigate, useLocation } from 'react-router-dom'; // Add useLocation
+import { useNavigate, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { loadStripe } from '@stripe/stripe-js';
 
@@ -9,11 +9,10 @@ const stripePromise = loadStripe('pk_test_51RNEmFPxiXl6gYuTxfzucygRKGJRsU3IIfkVC
 const PaymentComponent = () => {
   const { cartItems, cartTotal, clearCart } = useCart();
   const navigate = useNavigate();
-  const location = useLocation(); // Get location to access state
+  const location = useLocation();
   const [savedAddress, setSavedAddress] = useState(null);
   const [isLoading, setIsLoading] = useState(false);
 
-  // Get totalAfterDiscount from location state, fallback to cartTotal
   const totalAfterDiscount = location.state?.totalAfterDiscount || cartTotal;
 
   useEffect(() => {
@@ -27,7 +26,7 @@ const PaymentComponent = () => {
         }
 
         if (token) {
-          console.log('Fetching address from:', `${process.env.REACT_APP_API_BASE_URL}/api/customers/users/address`); // Debug log
+          console.log('Fetching address from:', `${process.env.REACT_APP_API_BASE_URL}/api/customers/users/address`);
           const response = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/customers/users/address`, {
             headers: { Authorization: `Bearer ${token}` },
           });
@@ -82,14 +81,14 @@ const PaymentComponent = () => {
         ProductQuantity: item.quantity,
         ProductImage: item.ProductImage,
       })),
-      total: totalAfterDiscount, // Use discounted total
+      total: totalAfterDiscount,
       address: savedAddress,
     };
 
     console.log('Sending checkout data:', orderData);
 
     try {
-      console.log('Creating checkout session at:', `${process.env.REACT_APP_API_BASE_URL}/api/customers/create-checkout-session`); // Debug log
+      console.log('Creating checkout session at:', `${process.env.REACT_APP_API_BASE_URL}/api/customers/create-checkout-session`);
       const response = await axios.post(`${process.env.REACT_APP_API_BASE_URL}/api/customers/create-checkout-session`, orderData);
       console.log('Checkout session response:', response.data);
 

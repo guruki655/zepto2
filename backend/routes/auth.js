@@ -83,27 +83,31 @@ router.put('/users/:id', async (req, res) => {
 });
 
 // Register Route
+// Register Route
 router.post('/register', async (req, res) => {
   try {
     console.log('Received payload:', req.body);
     const { name, email, password, role, phone, licenseNumber } = req.body;
 
+    // Validate required fields
     if (!name || !email || !password || !role || !phone) {
       return res.status(400).json({
         message: 'Missing required fields',
-        received: req.body
+        received: req.body,
       });
     }
 
+    // Check if email already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) return res.status(400).json({ message: 'Email already registered' });
 
+    // Hash the password
     const salt = await bcrypt.genSalt(10);
     const hashedPassword = await bcrypt.hash(password, salt);
 
+    // Generate vendorId or customerId based on role
     let vendorId = null;
     let customerId = null;
-
     if (role === 'vendor') {
       vendorId = await User.getNextId('vendor');
     }
@@ -111,7 +115,8 @@ router.post('/register', async (req, res) => {
       customerId = await User.getNextId('customer');
     }
 
-    const newUser = new User({
+    // Prepare the new user object, only include licenseNumber if provided
+    const userData = {
       name,
       email,
       password: hashedPassword,
@@ -119,10 +124,16 @@ router.post('/register', async (req, res) => {
       phone,
       vendorId,
       customerId,
-      licenseNumber
-    });
+    };
 
+    // Only set licenseNumber if it’s provided in the request body
+    if (licenseNumber !== undefined) {
+      userData.licenseNumber = licenseNumber;
+    }
+
+    const newUser = new User(userData);
     await newUser.save();
+
     res.status(201).json({ message: 'User created successfully' });
   } catch (err) {
     console.error('Registration error:', err);
