@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 
 function Register() {
   const [formData, setFormData] = useState({
@@ -21,7 +21,6 @@ function Register() {
     otp: ''
   });
 
-  // Fix: Use environment variable with fallback to correct API URL
   const API_BASE = process.env.REACT_APP_API_URL || 'http://15.207.109.249:5000';
   const [isOTPVerified, setIsOTPVerified] = useState(false);
   const navigate = useNavigate();
@@ -35,7 +34,6 @@ function Register() {
     const newErrors = {};
 
     if (isOTPVerified) {
-      // Name validation
       if (!formData.name) {
         newErrors.name = 'Name is required.';
         isValid = false;
@@ -47,7 +45,6 @@ function Register() {
         isValid = false;
       }
 
-      // Email validation
       if (!formData.email) {
         newErrors.email = 'Email is required.';
         isValid = false;
@@ -65,7 +62,6 @@ function Register() {
         }
       }
 
-      // Password validation
       if (!formData.password) {
         newErrors.password = 'Password is required.';
         isValid = false;
@@ -74,13 +70,11 @@ function Register() {
         isValid = false;
       }
 
-      // Role validation
       if (!formData.role) {
         newErrors.role = 'Role is required.';
         isValid = false;
       }
     } else {
-      // Phone validation
       if (!formData.phone) {
         newErrors.phone = 'Phone number is required.';
         isValid = false;
@@ -89,7 +83,6 @@ function Register() {
         isValid = false;
       }
 
-      // OTP validation
       if (!formData.otp) {
         newErrors.otp = 'OTP is required.';
         isValid = false;
@@ -106,10 +99,9 @@ function Register() {
       return;
     }
     try {
-      console.log('Sending OTP to:', `${API_BASE}/api/auth/send-otp`);
       const response = await axios.post(`${API_BASE}/api/auth/send-otp`, { phone: formData.phone });
       alert(isResend ? 'OTP resent successfully!' : 'OTP sent successfully!');
-      setFormData({ ...formData, otp: '' }); // Clear previous OTP input
+      setFormData({ ...formData, otp: '' });
     } catch (err) {
       if (err.response && err.response.data && err.response.data.message === 'Phone number already registered') {
         alert('Phone number already registered!');
@@ -121,12 +113,11 @@ function Register() {
   };
 
   const handleResendOTP = () => {
-    handleSendOTP(true); // Call send OTP with resend flag
+    handleSendOTP(true);
   };
 
   const handleOTPValidation = async () => {
     try {
-      console.log('Verifying OTP at:', `${API_BASE}/api/auth/verify-otp`);
       const response = await axios.post(`${API_BASE}/api/auth/verify-otp`, {
         phone: formData.phone,
         otp: formData.otp
@@ -143,40 +134,39 @@ function Register() {
     }
   };
 
- const handleSubmit = async (e) => {
-  e.preventDefault();
+  const handleSubmit = async (e) => {
+    e.preventDefault();
 
-  if (!validateForm()) {
-    return;
-  }
-
-  const { name, email, password, role, phone } = formData;
-
-  try {
-    console.log('Registering at:', `${API_BASE}/api/auth/register`);
-    const response = await axios.post(`${API_BASE}/api/auth/register`, {
-      name,
-      email,
-      password,
-      role,
-      phone,
-      licenseNumber: null // Explicitly set to null
-    });
-
-    alert('Registered successfully!');
-    navigate('/login');
-  } catch (err) {
-    console.error('Registration error:', err.response?.data || err.message);
-    
-    if (err.response?.data?.message) {
-      alert(`Registration failed: ${err.response.data.message}`);
-    } else {
-      alert('Registration failed. Please try again!');
+    if (!validateForm()) {
+      return;
     }
-  }
-};
+
+    const { name, email, password, role, phone } = formData;
+
+    try {
+      const response = await axios.post(`${API_BASE}/api/auth/register`, {
+        name,
+        email,
+        password,
+        role,
+        phone,
+        licenseNumber: null
+      });
+
+      alert('Registered successfully!');
+      navigate('/login');
+    } catch (err) {
+      console.error('Registration error:', err.response?.data || err.message);
+      if (err.response?.data?.message) {
+        alert(`Registration failed: ${err.response.data.message}`);
+      } else {
+        alert('Registration failed. Please try again!');
+      }
+    }
+  };
+
   return (
-    <div className="register-container d-flex justify-content-center align-items-center">
+    <div className="register-container d-flex justify-content-center align-items-center flex-column">
       <div className="card p-4 shadow register-card">
         <h2 className="text-center mb-4">Register</h2>
 
@@ -248,7 +238,7 @@ function Register() {
                 name="password"
                 className="form-control"
                 placeholder="Password"
-                value={formData.password} 
+                value={formData.password}
                 onChange={handleChange}
                 required
               />
@@ -283,7 +273,13 @@ function Register() {
             </div>
           </form>
         )}
+        <p className="mt-3">
+        Already a user? <Link to="/login">Login</Link>
+      </p>
       </div>
+
+     
+      
     </div>
   );
 }

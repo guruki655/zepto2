@@ -318,23 +318,27 @@ function Navbar() {
           </div>
 
           {/* Cart Column */}
-          <div className="col-lg-1 position-relative">
-            <Link to="/cart" className="text-decoration-none text-dark">
-              <i
-                className="fa fa-shopping-cart fa-2x"
-                aria-hidden="true"
-                style={{ cursor: 'pointer' }}
-              ></i>
-              {cartCount > 0 && (
-                <span
-                  className="position-absolute top-0 start-100 translate-middle badge rounded-pill bg-danger"
-                  style={{ fontSize: '0.6rem' }}
-                >
-                  {cartCount}
-                </span>
-              )}
-            </Link>
-          </div>
+       <div className="col-lg-1">
+  <Link to="/cart" className="text-decoration-none text-dark" title="Go to Cart">
+    <div className="position-relative">
+      <i
+        className="fa fa-shopping-cart fa-2x"
+        aria-hidden="true"
+        style={{ cursor: 'pointer' }}
+      ></i>
+      {cartCount > 0 && (
+    <span
+  className="position-absolute top-0 translate-middle badge rounded-pill bg-danger"
+  style={{ fontSize: '0.6rem', left: '80%' }}
+>
+  {cartCount}
+</span>
+
+      )}
+    </div>
+  </Link>
+</div>
+
         </div>
       </div>
     </div>

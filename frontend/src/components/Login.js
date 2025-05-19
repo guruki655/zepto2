@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import axios from 'axios';
 import 'bootstrap-icons/font/bootstrap-icons.css'; // Import Bootstrap Icons
+import { Link } from 'react-router-dom';
 
 function Login() {
   const [formData, setFormData] = useState({
@@ -90,7 +91,11 @@ function Login() {
             <a href="/ForgotPassword" className="text-primary">Forgot Password?</a>
           </div>
         </form>
+            <p className="mt-3 text-center">
+          Don't have an account? <Link to="/register">Register</Link>
+        </p>
       </div>
+  
     </div>
   );
 }
