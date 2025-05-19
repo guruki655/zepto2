@@ -1,6 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
 import { useNavigate } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 import zeptoVeg from '../images/zeptoVeggie.png';
 import ZeptoPet from '../images/zeptoPetCare.png';
 import ZeptoBaby from '../images/zeptoBabyCare.png';
@@ -456,8 +457,9 @@ function Home() {
               </button>
             </div>
             <div className="col-lg-12">
-              <img className="mt-5" src={zeptoBanner} alt="banner" />
-            </div>
+ <Link to="/paancorner">
+        <img className="mt-5" src={zeptoBanner} alt="banner" style={{ cursor: 'pointer' }} />
+      </Link>            </div>
             <div className="container-fluid mt-4 mb-4">
               <div className="row">
                 <div className="col-lg-6">

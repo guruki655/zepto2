@@ -33,24 +33,26 @@ function Footer() {
         <div className="row">
           {/* Company Information */}
           <div className="col-lg-3 col-md-6 mb-4">
-            <h5 className="mb-3">Company</h5>
-            <ul className="list-unstyled">
-              <li><Link to="/about" className="text-white text-decoration-none">About Us</Link></li>
-              <li><Link to="/careers" className="text-white text-decoration-none">Careers</Link></li>
-              <li><Link to="/press" className="text-white text-decoration-none">Press</Link></li>
-              <li><Link to="/contact" className="text-white text-decoration-none">Contact Us</Link></li>
-            </ul>
-          </div>
+            <h5 classNahrefme="mb-3">Company</h5>
+         <ul className='list-unstyled'>
+  <li><a href="https://www.zeptonow.com/customer-support" className="text-white text-decoration-none">Customer Support</a></li>
+  <li><a href="https://zepto.talentrecruit.com/career-page" className="text-white text-decoration-none">Careers</a></li>
+  <li><a href="https://www.zeptonow.com/press" className="text-white text-decoration-none">Press</a></li>
+  <li><a href="https://www.zeptonow.com/customer-support" className="text-white text-decoration-none">Contact Us</a></li>
+</ul>
 
-          {/* Customer Support */}
-          <div className="col-lg-3 col-md-6 mb-4">
-            <h5 className="mb-3">Customer Support</h5>
-            <ul className="list-unstyled">
-              <li><Link to="/support" className="text-white text-decoration-none">Get Help</Link></li>
-              <li><Link to="/delivery-areas" className="text-white text-decoration-none">Delivery Areas</Link></li>
-              <li><Link to="/terms" className="text-white text-decoration-none">Terms of Use</Link></li>
-              <li><Link to="/privacy" className="text-white text-decoration-none">Privacy Policy</Link></li>
-            </ul>
+            </div>
+
+            {/* Customer Support */}
+            <div className="col-lg-3 col-md-6 mb-4">
+              <h5 className="mb-3">Customer Support</h5>
+             <ul className="list-unstyled">
+  <li><a href="https://www.zeptonow.com/customer-support" className="text-white text-decoration-none">Get Help</a></li>
+  <li><a href="https://www.zeptonow.com/del-areas" className="text-white text-decoration-none">Delivery Areas</a></li>
+  <li><a href="https://www.zeptonow.com/terms-of-service" className="text-white text-decoration-none">Terms of Use</a></li>
+  <li><a href="https://www.zeptonow.com/privacy-policy" className="text-white text-decoration-none">Privacy Policy</a></li>
+</ul>
+
           </div>
 
           {/* Categories */}

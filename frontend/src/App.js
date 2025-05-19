@@ -4,6 +4,7 @@ import Footer from './components/footer.js';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { CartProvider } from './contexts/cartContext.js';
 import React, { Suspense, lazy } from 'react';
+import PrivateRoute from './components/privateroute.js';
 
 const AdminDashboard = lazy(() => import('./components/adminDashboard'));
 const VendorDashboard = lazy(() => import('./components/vendorDashboard.js'));
@@ -19,6 +20,7 @@ const CategoryPage = lazy(() => import('./pages/category.js'));
 const Success = lazy(() => import('./pages/success.js'));
 const PanCorner = lazy(() => import('./pages/cancel.js'));
 const Cancel = lazy(() => import('./pages/panCorner.js'));
+const PaanCorner = lazy(() => import('./pages/comingsoon.js'));
 
 function App() {
   return (
@@ -33,19 +35,56 @@ function App() {
                 <Route path="/Home" element={<Home />} />
                 <Route path="/product/:id" element={<ProductPage />} />
                 <Route path="/Navbar" element={<Navbar />} />
-                <Route path="/AdminDashboard" element={<AdminDashboard />} />
-                <Route path="/VendorDashboard" element={<VendorDashboard />} />
                 <Route path="/Register" element={<Register />} />
                 <Route path="/Login" element={<Login />} />
                 <Route path="/ForgotPassword" element={<ForgotPassword />} />
-                <Route path="/cart" element={<Cart />} />
-                <Route path="/Payment" element={<PaymentComponent />} />
-                <Route path="/orders" element={<OrderHistory />} />
-                <Route path="/orders" element={<OrderHistory />} />
-                <Route path="/PanCorner" element={<PanCorner />} />
                 <Route path="/category/:categoryName" element={<CategoryPage />} />
                 <Route path="/success" element={<Success />} />
                 <Route path="/cancel" element={<Cancel />} />
+                <Route path="/PanCorner" element={<PanCorner />} />
+                <Route path="/PaanCorner" element={<PaanCorner />} />
+
+                
+                <Route
+                  path="/AdminDashboard"
+                  element={
+                   <PrivateRoute allowedRoles={['admin']}>
+      <AdminDashboard />
+    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/VendorDashboard"
+                  element={
+                       <PrivateRoute allowedRoles={['vendor']}>
+      <VendorDashboard />
+    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/cart"
+                  element={
+                    <PrivateRoute>
+                      <Cart />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/Payment"
+                  element={
+                    <PrivateRoute>
+                      <PaymentComponent />
+                    </PrivateRoute>
+                  }
+                />
+                <Route
+                  path="/orders"
+                  element={
+                    <PrivateRoute>
+                      <OrderHistory />
+                    </PrivateRoute>
+                  }
+                />
               </Routes>
             </Suspense>
           </main>

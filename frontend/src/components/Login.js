@@ -31,6 +31,7 @@ function Login() {
 
       localStorage.setItem('token', res.data.token);
       localStorage.setItem('email', res.data.email);
+      localStorage.setItem('role', res.data.role);
       console.log('Email in localStorage:', localStorage.getItem('email'));
 
       alert('Login successful!');
