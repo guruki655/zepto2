@@ -271,12 +271,6 @@ router.post('/create-checkout-session', async (req, res) => {
   try {
     const { items, email, address, total } = req.body;
 
-    // Validate API_BASE_URL
-    if (!process.env.API_BASE_URL) {
-      console.error('API_BASE_URL is not defined in environment variables');
-      return res.status(500).json({ message: 'Server configuration error: API_BASE_URL is missing' });
-    }
-
     // Validate user
     const user = await User.findOne({ email });
     if (!user) return res.status(404).json({ message: 'User not found' });
@@ -295,7 +289,7 @@ router.post('/create-checkout-session', async (req, res) => {
       }
     }
 
-    // Create a single line item for the discounted total
+    // Create line item
     const lineItems = [{
       price_data: {
         currency: 'inr',
@@ -308,7 +302,7 @@ router.post('/create-checkout-session', async (req, res) => {
       quantity: 1,
     }];
 
-    // Prepare items for metadata, excluding ProductImage
+    // Prepare metadata
     const metadataItems = items.map(({ ProductID, ProductName, ProductPrice, ProductQuantity }) => ({
       ProductID,
       ProductName,
@@ -316,27 +310,21 @@ router.post('/create-checkout-session', async (req, res) => {
       ProductQuantity,
     }));
 
-    // Create Stripe Checkout session
+    // Create Stripe session
     const session = await stripe.checkout.sessions.create({
       payment_method_types: ['card'],
       line_items: lineItems,
-      mode: 'payment',
-      success_url: `${process.env.API_BASE_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${process.env.API_BASE_URL}/cancel`,
+      mode: 'payment', // Changed from '-payment' to 'payment'
+      success_url: `${process.env.FRONTEND_URL}/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${process.env.FRONTEND_URL}/cancel`,
       customer_email: email,
       metadata: {
-        items: JSON.stringify(metadataItems), // Exclude ProductImage
+        items: JSON.stringify(metadataItems),
         email,
         address: JSON.stringify(address),
         total: total.toString(),
       },
     });
-
-    // Verify metadata size (for debugging)
-    console.log('Metadata items length:', JSON.stringify(metadataItems).length);
-    if (JSON.stringify(metadataItems).length > 500) {
-      console.warn('Metadata items still exceeds 500 characters. Consider further reduction.');
-    }
 
     res.json({ id: session.id });
   } catch (error) {

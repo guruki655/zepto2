@@ -31,7 +31,6 @@ function Home() {
   const navigate = useNavigate();
   const [scrollPosition, setScrollPosition] = useState(0);
   const carouselRef = useRef(null);
-  const API_BASE = process.env.REACT_APP_API_URL; 
 
   useEffect(() => {
     fetchProducts();
@@ -39,7 +38,7 @@ function Home() {
 
   const fetchProducts = async () => {
     try {
-      console.log('Fetching products from:', `${process.env.REACT_APP_API_BASE_URL}/api/customers`); // Debug log
+      console.log('Fetching products from:', `${process.env.REACT_APP_API_BASE_URL}/api/customers`);
       const res = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/customers`);
       setProducts(res.data);
     } catch (err) {
@@ -137,7 +136,6 @@ function Home() {
     (product) => product.ProductType === 'FruitsandVegetables'
   );
 
-  // CHANGE: Debug cafeProducts length to verify See More rendering
   console.log('Cafe Products Count:', cafeProducts.length);
 
   const ProductCard = ({ product }) => {
@@ -167,49 +165,57 @@ function Home() {
               {Array.from({ length: Math.floor(product.ProductRating || 1) }, (_, i) => (
                 <i key={i} className="fas fa-star text-warning" />
               ))}
-              {Array.from({ length: 5 - Math.floor(product.ProductRating || 1) }, (_, i) => (
-                <i key={i + Math.floor(product.ProductRating || 1)} className="far fa-star text-warning" />
-              ))}
+              {Array.from(
+                { length: 5 - Math.floor(product.ProductRating || 1) },
+                (_, i) => (
+                  <i
+                    key={i + Math.floor(product.ProductRating || 1)}
+                    className="far fa-star text-warning"
+                  />
+                )
+              )}
             </div>
             {(selectedCategory === 'Cafe' ||
               selectedCategory === 'Electronics' ||
               selectedCategory === 'FruitsandVegetables' ||
               selectedCategory === 'All') && (
-              isOutOfStock ? (
-                <p className="text-danger mt-2">Out of Stock</p>
-              ) : cartProduct ? (
-                <div className="d-flex align-items-center">
+              <div className="button-container">
+                {isOutOfStock ? (
+                  <p className="text-danger mt-2">Out of Stock</p>
+                ) : cartProduct ? (
+                  <div className="d-flex align-items-center justify-content-center">
+                    <button
+                      className="btn btn-sm btn-outline-secondary"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        removeFromCart(product.ProductID);
+                      }}
+                    >
+                      -
+                    </button>
+                    <span className="mx-2">{quantity}</span>
+                    <button
+                      className="btn btn-sm btn-outline-secondary"
+                      onClick={(e) => {
+                        e.stopPropagation();
+                        addToCart(product);
+                      }}
+                    >
+                      +
+                    </button>
+                  </div>
+                ) : (
                   <button
-                    className="btn btn-sm btn-outline-secondary"
-                    onClick={(e) => {
-                      e.stopPropagation();
-                      removeFromCart(product.ProductID);
-                    }}
-                  >
-                    -
-                  </button>
-                  <span className="mx-2">{quantity}</span>
-                  <button
-                    className="btn btn-sm btn-outline-secondary"
+                    className="btn btn-primary"
                     onClick={(e) => {
                       e.stopPropagation();
                       addToCart(product);
                     }}
                   >
-                    +
+                    Add to Cart
                   </button>
-                </div>
-              ) : (
-                <button
-                  className="btn btn-primary"
-                  onClick={(e) => {
-                    e.stopPropagation();
-                    addToCart(product);
-                  }}
-                >
-                  Add to Cart
-                </button>
-              )
+                )}
+              </div>
             )}
           </div>
         </div>
@@ -269,9 +275,15 @@ function Home() {
               {Array.from({ length: Math.floor(product.ProductRating || 1) }, (_, i) => (
                 <i key={i} className="fas fa-star text-warning" />
               ))}
-              {Array.from({ length: 5 - Math.floor(product.ProductRating || 1) }, (_, i) => (
-                <i key={i + Math.floor(product.ProductRating || 1)} className="far fa-star text-warning" />
-              ))}
+              {Array.from(
+                { length: 5 - Math.floor(product.ProductRating || 1) },
+                (_, i) => (
+                  <i
+                    key={i + Math.floor(product.ProductRating || 1)}
+                    className="far fa-star text-warning"
+                  />
+                )
+              )}
             </p>
             <p>
               <strong>Quantity:</strong> {product.ProductQuantity}
@@ -444,7 +456,7 @@ function Home() {
               </button>
             </div>
             <div className="col-lg-12">
-              <img  className="mt-5" src={zeptoBanner} alt="banner" />
+              <img className="mt-5" src={zeptoBanner} alt="banner" />
             </div>
             <div className="container-fluid mt-4 mb-4">
               <div className="row">
@@ -468,7 +480,7 @@ function Home() {
                 </div>
               </div>
             </div>
-         
+
             <div className="col-lg-12 mb-4">
               <div className="d-flex justify-content-between align-items-center">
                 <h2>Fruits and Vegetables</h2>
@@ -499,7 +511,6 @@ function Home() {
 
         {(selectedCategory === 'Cafe' || selectedCategory === 'All') && (
           <>
-            {/* CHANGE: Update See More link with improved UI */}
             <div className="col-lg-12 mb-4">
               <div className="d-flex justify-content-between align-items-center">
                 <h2>Cafe Products</h2>
@@ -587,8 +598,7 @@ function Home() {
 
         {(selectedCategory === 'Electronics' || selectedCategory === 'All') && (
           <>
-            {/* CHANGE: Update See More link with improved UI */}
-            <div className="col-lg-12 mb-4">
+            <div className= "col-lg-12 mb-4">
               <div className="d-flex justify-content-between align-items-center">
                 <h2>Electronics</h2>
                 {electronicProducts.length > 4 && (

@@ -27,7 +27,6 @@ function Navbar() {
     if (token && email) {
       const fetchUserDetails = async () => {
         try {
-          console.log('Fetching user details from:', `${process.env.REACT_APP_API_BASE_URL}/api/auth/profile/${email}`); // Debug log
           const res = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/auth/profile/${email}`);
           setUserDetails({
             name: res.data.name || 'User',
@@ -46,7 +45,6 @@ function Navbar() {
   useEffect(() => {
     const fetchProducts = async () => {
       try {
-        console.log('Fetching products from:', `${process.env.REACT_APP_API_BASE_URL}/api/customers`); // Debug log
         const res = await axios.get(`${process.env.REACT_APP_API_BASE_URL}/api/customers`);
         setProducts(res.data);
       } catch (err) {
@@ -175,6 +173,7 @@ function Navbar() {
     <div className="shadow-lg">
       <div className="container-fluid shadow-lg p-4">
         <div className="row align-items-center">
+          {/* Logo Column */}
           <div className="col-lg-2">
             <img
               src={logo}
@@ -184,6 +183,8 @@ function Navbar() {
               style={{ cursor: 'pointer' }}
             />
           </div>
+
+          {/* Location Column */}
           <div className="col-lg-2 position-relative">
             <div
               style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', color: '#007bff' }}
@@ -199,7 +200,7 @@ function Navbar() {
                 style={{ top: '50px', left: '0', zIndex: 1000, minWidth: '200px' }}
               >
                 <p
-                  style={{ cursor: 'pointer', padding: '8px 12px', margin: 0, hover: { backgroundColor: '#f8f9fa' } }}
+                  style={{ cursor: 'pointer', padding: '8px 12px', margin: 0 }}
                   onClick={handleCurrentLocation}
                 >
                   <i className="fas fa-location-arrow me-2"></i>Current Location
@@ -226,109 +227,97 @@ function Navbar() {
               </div>
             )}
           </div>
-          {!isVendorDashboard && (
-            <div className="col-lg-6 position-relative">
-              <input
-                className="form-control"
-                placeholder="Search"
-                type="text"
-                value={searchTerm}
-                onChange={handleSearchChange}
-              />
-              {showSearchDropdown && (
-                <ul
-                  className="position-absolute bg-white border rounded mt-1 w-100"
-                  style={{ zIndex: 1000, listStyleType: 'none', padding: 0 }}
-                >
-                  {filteredProducts.length > 0 ? (
-                    filteredProducts.map((product) => (
-                      <li
-                        key={product._id}
-                        className="p-2 border-bottom d-flex align-items-center"
-                        style={{ cursor: 'pointer' }}
-                        onClick={() => handleProductClick(product.ProductID)}
-                      >
-                        {product.ProductImage && (
-                          <img
-                            src={`data:image/jpeg;base64,${product.ProductImage}`}
-                            alt={product.ProductName}
-                            style={{ width: '30px', height: '30px', marginRight: '10px', objectFit: 'cover' }}
-                          />
-                        )}
-                        <span>{product.ProductName}</span>
-                      </li>
-                    ))
-                  ) : (
-                    <li className="p-2">No products found</li>
-                  )}
-                </ul>
-              )}
-            </div>
-          )}
+
+          {/* Search Column - Always present */}
+          <div className="col-lg-6 position-relative">
+            {!isVendorDashboard ? (
+              <>
+                <input 
+                  className="form-control"
+                  placeholder="Search"
+                  type="text"
+                  value={searchTerm}
+                  onChange={handleSearchChange}
+                />
+                {showSearchDropdown && (
+                  <ul
+                    className="position-absolute bg-white border rounded mt-1 w-100"
+                    style={{ zIndex: 1000, listStyleType: 'none', padding: 0 }}
+                  >
+                    {filteredProducts.length > 0 ? (
+                      filteredProducts.map((product) => (
+                        <li
+                          key={product._id}
+                          className="p-2 border-bottom d-flex align-items-center"
+                          style={{ cursor: 'pointer' }}
+                          onClick={() => handleProductClick(product.ProductID)}
+                        >
+                          {product.ProductImage && (
+                            <img
+                              src={`data:image/jpeg;base64,${product.ProductImage}`}
+                              alt={product.ProductName}
+                              style={{
+                                width: '30px',
+                                height: '30px',
+                                marginRight: '10px',
+                                objectFit: 'cover',
+                              }}
+                            />
+                          )}
+                          <span>{product.ProductName}</span>
+                        </li>
+                      ))
+                    ) : (
+                      <li className="p-2">No products found</li>
+                    )}
+                  </ul>
+                )}
+              </>
+            ) : (
+              <div style={{ height: "38px" }}></div>
+            )}
+          </div>
+
+          {/* Profile Column */}
           <div className="col-lg-1 position-relative">
             {isLoggedIn ? (
-              <div
-                style={{ display: 'flex', alignItems: 'center', cursor: 'pointer' }}
-                onClick={handleIconClick}
-              >
-                <span>Hello, {userDetails.name}</span>
-                <i
-                  className="fa fa-user-circle-o fa-2x"
-                  aria-hidden="true"
-                  style={{ marginLeft: '5px' }}
-                ></i>
+              <div onClick={handleIconClick} style={{ cursor: 'pointer' }}>
+                <i className="fas fa-user-circle fa-2x"></i>
+                {showDropdown && (
+                  <div
+                    className="position-absolute bg-white shadow rounded p-2"
+                    style={{ top: '40px', right: 0, zIndex: 1000, minWidth: '180px' }}
+                  >
+                    <p className="mb-1"><strong>{userDetails.name}</strong></p>
+                    <p className="mb-2 text-muted" style={{ fontSize: '0.9rem' }}>{userDetails.email}</p>
+                    {userDetails.role === 'vendor' ? (
+                      <p onClick={goToVendorDashboard} style={{ cursor: 'pointer', margin: 0 }}>Vendor Dashboard</p>
+                    ) : (
+                      <p onClick={goToOrders} style={{ cursor: 'pointer', margin: 0 }}>My Orders</p>
+                    )}
+                    <hr style={{ margin: '8px 0' }} />
+                    <p onClick={handleLogout} style={{ cursor: 'pointer', margin: 0 }}>Logout</p>
+                  </div>
+                )}
               </div>
             ) : (
-              <i
-                className="fa fa-user-circle-o fa-2x"
-                aria-hidden="true"
-                style={{ cursor: 'pointer' }}
-                onClick={handleIconClick}
-              ></i>
-            )}
-            {showDropdown && (
-              <div
-                className="position-absolute bg-white shadow rounded p-2"
-                style={{ top: '50px', right: '0', zIndex: 1000 }}
-              >
-                {isLoggedIn ? (
-                  <>
-                    <p>{userDetails.phone}</p>
-                    <p>{userDetails.email}</p>
-                    <p
-                      style={{ cursor: 'pointer' }}
-                      onClick={goToOrders}
-                    >
-                      Orders
-                    </p>
-                    {userDetails.role === 'vendor' && (
-                      <p
-                        style={{ cursor: 'pointer' }}
-                        onClick={goToVendorDashboard}
-                      >
-                        Vendor Dashboard
-                      </p>
-                    )}
-                    <p
-                      style={{ cursor: 'pointer' }}
-                      onClick={handleLogout}
-                    >
-                      Logout
-                    </p>
-                  </>
-                ) : (
-                  <>
-                    <p style={{ cursor: 'pointer' }} onClick={goToLogin}>
-                      Login
-                    </p>
-                    <p style={{ cursor: 'pointer' }} onClick={goToRegister}>
-                      Register
-                    </p>
-                  </>
+              <div onClick={handleIconClick} style={{ cursor: 'pointer' }}>
+                <i className="fas fa-user-circle fa-2x text-secondary"></i>
+                {showDropdown && (
+                  <div
+                    className="position-absolute bg-white shadow rounded p-2"
+                    style={{ top: '40px', right: 0, zIndex: 1000, minWidth: '160px' }}
+                  >
+                    <p onClick={goToLogin} style={{ cursor: 'pointer', margin: 0 }}>Login</p>
+                    <hr style={{ margin: '8px 0' }} />
+                    <p onClick={goToRegister} style={{ cursor: 'pointer', margin: 0 }}>Register</p>
+                  </div>
                 )}
               </div>
             )}
           </div>
+
+          {/* Cart Column */}
           <div className="col-lg-1 position-relative">
             <Link to="/cart" className="text-decoration-none text-dark">
               <i

@@ -128,3 +128,36 @@ body {
     gap: 10px; /* Prevent crowding */
   }
 }
+
+.button-container {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  width: 100%; /* Ensure the container takes full width */
+  min-height: 40px; /* Prevent height changes */
+  margin-top: 10px; /* Consistent spacing */
+}
+
+.button-container .btn-primary {
+  width: 120px; /* Fixed width for Add to Cart button */
+  text-align: center;
+}
+
+.button-container .d-flex {
+  width: 120px; /* Match the width of Add to Cart button */
+  justify-content: space-between; /* Spread out the - quantity + */
+}
+
+.button-container .btn-sm {
+  width: 30px; /* Fixed width for + and - buttons */
+  height: 30px;
+  padding: 0;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.button-container .mx-2 {
+  width: 30px; /* Fixed width for quantity text */
+  text-align: center;
+}

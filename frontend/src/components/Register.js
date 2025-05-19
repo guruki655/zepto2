@@ -20,7 +20,9 @@ function Register() {
     phone: '',
     otp: ''
   });
-const API_BASE = process.env.REACT_APP_API_URL;
+
+  // Fix: Use environment variable with fallback to correct API URL
+  const API_BASE = process.env.REACT_APP_API_URL || 'http://15.207.109.249:5000';
   const [isOTPVerified, setIsOTPVerified] = useState(false);
   const navigate = useNavigate();
 
@@ -104,14 +106,15 @@ const API_BASE = process.env.REACT_APP_API_URL;
       return;
     }
     try {
-      console.log('Sending OTP to:', `${API_BASE}:5000/api/auth/send-otp`); // Debug log
-      const response = await axios.post(`${API_BASE}:5000/api/auth/send-otp`, { phone: formData.phone });
+      console.log('Sending OTP to:', `${API_BASE}/api/auth/send-otp`);
+      const response = await axios.post(`${API_BASE}/api/auth/send-otp`, { phone: formData.phone });
       alert(isResend ? 'OTP resent successfully!' : 'OTP sent successfully!');
       setFormData({ ...formData, otp: '' }); // Clear previous OTP input
     } catch (err) {
       if (err.response && err.response.data && err.response.data.message === 'Phone number already registered') {
         alert('Phone number already registered!');
       } else {
+        console.error('OTP send error:', err.response ? err.response.data : err.message);
         alert('Failed to send OTP!');
       }
     }
@@ -123,7 +126,7 @@ const API_BASE = process.env.REACT_APP_API_URL;
 
   const handleOTPValidation = async () => {
     try {
-      console.log('Verifying OTP at:', `${API_BASE}/api/auth/verify-otp`); // Debug log
+      console.log('Verifying OTP at:', `${API_BASE}/api/auth/verify-otp`);
       const response = await axios.post(`${API_BASE}/api/auth/verify-otp`, {
         phone: formData.phone,
         otp: formData.otp
@@ -140,32 +143,38 @@ const API_BASE = process.env.REACT_APP_API_URL;
     }
   };
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
+ const handleSubmit = async (e) => {
+  e.preventDefault();
 
-    if (!validateForm()) {
-      return;
+  if (!validateForm()) {
+    return;
+  }
+
+  const { name, email, password, role, phone } = formData;
+
+  try {
+    console.log('Registering at:', `${API_BASE}/api/auth/register`);
+    const response = await axios.post(`${API_BASE}/api/auth/register`, {
+      name,
+      email,
+      password,
+      role,
+      phone,
+      licenseNumber: null // Explicitly set to null
+    });
+
+    alert('Registered successfully!');
+    navigate('/login');
+  } catch (err) {
+    console.error('Registration error:', err.response?.data || err.message);
+    
+    if (err.response?.data?.message) {
+      alert(`Registration failed: ${err.response.data.message}`);
+    } else {
+      alert('Registration failed. Please try again!');
     }
-
-    const { name, email, password, role, phone } = formData;
-
-    try {
-      console.log('Registering at:', `${API_BASE}/api/auth/register`); // Debug log
-      const response = await axios.post(`${API_BASE}/api/auth/register`, {
-        name,
-        email,
-        password,
-        role,
-        phone
-      });
-
-      alert('Registered successfully!');
-      navigate('/login');
-    } catch (err) {
-      alert('Registration failed. Try again!');
-    }
-  };
-
+  }
+};
   return (
     <div className="register-container d-flex justify-content-center align-items-center">
       <div className="card p-4 shadow register-card">

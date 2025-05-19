@@ -2,6 +2,7 @@ const express = require('express');
 const path = require('path');
 const app = express();
 const mongoose = require('mongoose');
+const User = require('./models/userModel');
 const cors = require('cors');
 require('dotenv').config();
 
@@ -21,7 +22,12 @@ app.use('/uploads', express.static('uploads'));
 // Connect to MongoDB
 const MONGODB_URI = 'mongodb+srv://gurukiran655:AORDVtICSFbGQcw2@cluster0.rrmyl2c.mongodb.net/yourDatabaseName?retryWrites=true&w=majority';
 mongoose.connect(MONGODB_URI, { useNewUrlParser: true, useUnifiedTopology: true })
-  .then(() => console.log('Connected to MongoDB'))
+  .then(async () => {
+    console.log('Connected to MongoDB');
+
+    await User.syncIndexes();
+    console.log('User indexes synced successfully');
+  })
   .catch(err => console.error('MongoDB connection error:', err));
 
 // Serve React frontend build (make sure path is correct)
