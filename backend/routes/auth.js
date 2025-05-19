@@ -83,7 +83,7 @@ router.put('/users/:id', async (req, res) => {
 });
 
 // Register Route
-// Register Route
+
 router.post('/register', async (req, res) => {
   try {
     console.log('Received payload:', req.body);
@@ -97,9 +97,23 @@ router.post('/register', async (req, res) => {
       });
     }
 
+    // Validate name (only letters and spaces)
+    if (!/^[a-zA-Z\s]+$/.test(name)) {
+      return res.status(400).json({ message: 'Name must contain only letters and spaces' });
+    }
+
+    // Validate licenseNumber for vendors
+    if (role === 'vendor' && (!licenseNumber || licenseNumber.trim() === '')) {
+      return res.status(400).json({ message: 'License number is required for vendors' });
+    }
+
     // Check if email already exists
     const existingUser = await User.findOne({ email });
     if (existingUser) return res.status(400).json({ message: 'Email already registered' });
+
+    // Check if phone already exists
+    const existingPhone = await User.findOne({ phone });
+    if (existingPhone) return res.status(400).json({ message: 'Phone number already registered' });
 
     // Hash the password
     const salt = await bcrypt.genSalt(10);
@@ -115,7 +129,7 @@ router.post('/register', async (req, res) => {
       customerId = await User.getNextId('customer');
     }
 
-    // Prepare the new user object, only include licenseNumber if provided
+    // Prepare the new user object
     const userData = {
       name,
       email,
@@ -126,11 +140,14 @@ router.post('/register', async (req, res) => {
       customerId,
     };
 
-    // Only set licenseNumber if it’s provided in the request body
-    if (licenseNumber !== undefined) {
-      userData.licenseNumber = licenseNumber;
+    // Handle licenseNumber: only set if it's a non-empty string, otherwise set to null
+    if (licenseNumber && licenseNumber.trim() !== '') {
+      userData.licenseNumber = licenseNumber.trim();
+    } else {
+      userData.licenseNumber = null; // Explicitly set to null if not provided or empty
     }
 
+    console.log('User data to save:', userData);
     const newUser = new User(userData);
     await newUser.save();
 
@@ -138,7 +155,7 @@ router.post('/register', async (req, res) => {
   } catch (err) {
     console.error('Registration error:', err);
     if (err.code === 11000) {
-      const field = Object.keys(err.keyValue)[0]; // Get the field causing the duplicate error
+      const field = Object.keys(err.keyValue)[0];
       if (field === 'email') {
         return res.status(400).json({ message: 'Email already registered' });
       } else if (field === 'licenseNumber') {
@@ -147,7 +164,7 @@ router.post('/register', async (req, res) => {
         return res.status(400).json({ message: `Duplicate field error: ${field}` });
       }
     }
-    res.status(500).json({ message: 'Server error during registration' });
+    res.status(500).json({ message: 'Server error during registration', error: err.message });
   }
 });
 
