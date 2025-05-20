@@ -3,6 +3,7 @@ import logo from '../images/zeptoLogo.svg';
 import { useNavigate, Link, useLocation } from 'react-router-dom';
 import axios from 'axios';
 import { useCart } from '../contexts/cartContext';
+import '../styles/navbar.css';
 
 function Navbar() {
   const [showDropdown, setShowDropdown] = useState(false);
@@ -23,7 +24,7 @@ function Navbar() {
     const token = localStorage.getItem('token');
     const email = localStorage.getItem('email');
     setIsLoggedIn(!!token);
-  
+
     if (token && email) {
       const fetchUserDetails = async () => {
         try {
@@ -32,7 +33,7 @@ function Navbar() {
             name: res.data.name || 'User',
             phone: res.data.phone || 'N/A',
             email: res.data.email || email,
-            role: res.data.role || 'customer'
+            role: res.data.role || 'customer',
           });
         } catch (err) {
           console.error('Error fetching user details:', err);
@@ -174,7 +175,7 @@ function Navbar() {
       <div className="container-fluid shadow-lg p-4">
         <div className="row align-items-center">
           {/* Logo Column */}
-          <div className="col-lg-2">
+          <div className="col-4 col-lg-2 order-1">
             <img
               src={logo}
               alt="logo"
@@ -185,7 +186,7 @@ function Navbar() {
           </div>
 
           {/* Location Column */}
-          <div className="col-lg-2 position-relative">
+          <div className="d-none d-lg-block col-lg-2 order-lg-2 position-relative">
             <div
               style={{ display: 'flex', alignItems: 'center', cursor: 'pointer', color: '#007bff' }}
               onClick={toggleLocationDropdown}
@@ -195,44 +196,29 @@ function Navbar() {
               <i className={`fas fa-caret-${showLocationDropdown ? 'up' : 'down'} ms-1`}></i>
             </div>
             {showLocationDropdown && (
-              <div
-                className="position-absolute bg-white shadow rounded p-2"
-                style={{ top: '50px', left: '0', zIndex: 1000, minWidth: '200px' }}
-              >
-                <p
-                  style={{ cursor: 'pointer', padding: '8px 12px', margin: 0 }}
-                  onClick={handleCurrentLocation}
-                >
+              <div className="location-dropdown">
+                <p onClick={handleCurrentLocation}>
                   <i className="fas fa-location-arrow me-2"></i>Current Location
                 </p>
-                <hr style={{ margin: '4px 0' }} />
-                <p
-                  style={{ cursor: 'pointer', padding: '8px 12px', margin: 0 }}
-                  onClick={() => setManualLocation('Bangalore, KA')}
-                >
+                <hr />
+                <p onClick={() => setManualLocation('Bangalore, KA')}>
                   Bangalore, KA
                 </p>
-                <p
-                  style={{ cursor: 'pointer', padding: '8px 12px', margin: 0 }}
-                  onClick={() => setManualLocation('Mumbai, MH')}
-                >
+                <p onClick={() => setManualLocation('Mumbai, MH')}>
                   Mumbai, MH
                 </p>
-                <p
-                  style={{ cursor: 'pointer', padding: '8px 12px', margin: 0 }}
-                  onClick={() => setManualLocation('Delhi, DL')}
-                >
+                <p onClick={() => setManualLocation('Delhi, DL')}>
                   Delhi, DL
                 </p>
               </div>
             )}
           </div>
 
-          {/* Search Column - Always present */}
-          <div className="col-lg-6 position-relative">
+          {/* Search Column */}
+          <div className="col-12 col-lg-6 order-3 order-lg-3 mt-2 mt-lg-0 position-relative">
             {!isVendorDashboard ? (
-              <>
-                <input 
+              <div className="search-container">
+                <input
                   className="form-control"
                   placeholder="Search"
                   type="text"
@@ -240,63 +226,54 @@ function Navbar() {
                   onChange={handleSearchChange}
                 />
                 {showSearchDropdown && (
-                  <ul
-                    className="position-absolute bg-white border rounded mt-1 w-100"
-                    style={{ zIndex: 1000, listStyleType: 'none', padding: 0 }}
-                  >
+                  <ul className="search-results">
                     {filteredProducts.length > 0 ? (
                       filteredProducts.map((product) => (
                         <li
                           key={product._id}
-                          className="p-2 border-bottom d-flex align-items-center"
-                          style={{ cursor: 'pointer' }}
+                          className="search-result-item"
                           onClick={() => handleProductClick(product.ProductID)}
                         >
                           {product.ProductImage && (
                             <img
                               src={`data:image/jpeg;base64,${product.ProductImage}`}
                               alt={product.ProductName}
-                              style={{
-                                width: '30px',
-                                height: '30px',
-                                marginRight: '10px',
-                                objectFit: 'cover',
-                              }}
+                              className="search-result-image"
                             />
                           )}
-                          <span>{product.ProductName}</span>
+                          <div>
+                            <p className="search-result-name">{product.ProductName}</p>
+                            <p className="search-result-price">₹{product.ProductPrice}</p>
+                          </div>
                         </li>
                       ))
                     ) : (
-                      <li className="p-2">No products found</li>
+                      <li className="search-result-item">No products found</li>
                     )}
                   </ul>
                 )}
-              </>
+              </div>
             ) : (
               <div style={{ height: "38px" }}></div>
             )}
           </div>
 
           {/* Profile Column */}
-          <div className="col-lg-1 position-relative">
+          <div className="col-4 col-lg-1 order-2 order-lg-4 position-relative text-end">
             {isLoggedIn ? (
               <div onClick={handleIconClick} style={{ cursor: 'pointer' }}>
                 <i className="fas fa-user-circle fa-2x"></i>
                 {showDropdown && (
-                  <div
-                    className="position-absolute bg-white shadow rounded p-2"
-                    style={{ top: '40px', right: 0, zIndex: 1000, minWidth: '180px' }}
-                  >
+                  <div className="user-dropdown">
                     <p className="mb-1"><strong>{userDetails.name}</strong></p>
                     <p className="mb-2 text-muted" style={{ fontSize: '0.9rem' }}>{userDetails.email}</p>
                     {userDetails.role === 'vendor' ? (
-                      <p onClick={goToVendorDashboard} style={{ cursor: 'pointer', margin: 0 }}>Vendor Dashboard</p>
+                      <p onClick={goToVendorDashboard}>Vendor Dashboard</p>
                     ) : (
-                      <p onClick={goToOrders} style={{ cursor: 'pointer', margin: 0 }}>My Orders</p>
+                      <p onClick={goToOrders}>My Orders</p>
                     )}
-                    <hr style={{ margin: '8px 0' }} />
-                    <p onClick={handleLogout} style={{ cursor: 'pointer', margin: 0 }}>Logout</p>
+                    <hr />
+                    <p onClick={handleLogout}>Logout</p>
                   </div>
                 )}
               </div>
@@ -304,13 +281,10 @@ function Navbar() {
               <div onClick={handleIconClick} style={{ cursor: 'pointer' }}>
                 <i className="fas fa-user-circle fa-2x text-secondary"></i>
                 {showDropdown && (
-                  <div
-                    className="position-absolute bg-white shadow rounded p-2"
-                    style={{ top: '40px', right: 0, zIndex: 1000, minWidth: '160px' }}
-                  >
-                    <p onClick={goToLogin} style={{ cursor: 'pointer', margin: 0 }}>Login</p>
-                    <hr style={{ margin: '8px 0' }} />
-                    <p onClick={goToRegister} style={{ cursor: 'pointer', margin: 0 }}>Register</p>
+                  <div className="user-dropdown">
+                    <p onClick={goToLogin}>Login</p>
+                    <hr />
+                    <p onClick={goToRegister}>Register</p>
                   </div>
                 )}
               </div>
@@ -318,27 +292,22 @@ function Navbar() {
           </div>
 
           {/* Cart Column */}
-       <div className="col-lg-1">
-  <Link to="/cart" className="text-decoration-none text-dark" title="Go to Cart">
-    <div className="position-relative">
-      <i
-        className="fa fa-shopping-cart fa-2x"
-        aria-hidden="true"
-        style={{ cursor: 'pointer' }}
-      ></i>
-      {cartCount > 0 && (
-    <span
-  className="position-absolute top-0 translate-middle badge rounded-pill bg-danger"
-  style={{ fontSize: '0.6rem', left: '80%' }}
->
-  {cartCount}
-</span>
-
-      )}
-    </div>
-  </Link>
-</div>
-
+          <div className="col-4 col-lg-1 order-2 order-lg-5 position-relative text-end">
+            <Link to="/cart" className="text-decoration-none text-dark" title="Go to Cart">
+              <div className="position-relative">
+                <i
+                  className="fa fa-shopping-cart fa-2x"
+                  aria-hidden="true"
+                  style={{ cursor: 'pointer' }}
+                ></i>
+                {cartCount > 0 && (
+                  <span className="position-absolute top-0 translate-middle badge rounded-pill bg-danger cart-badge">
+                    {cartCount}
+                  </span>
+                )}
+              </div>
+            </Link>
+          </div>
         </div>
       </div>
     </div>

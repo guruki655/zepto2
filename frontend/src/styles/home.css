@@ -1,50 +1,50 @@
-/* home.css */
-.card.out-of-stock {
-  opacity: 0.6;
-  filter: grayscale(80%);
+/* General Reset */
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
 }
 
-.card.out-of-stock:hover {
-  opacity: 0.8;
+/* Prevent horizontal scrolling */
+body, .container, .container-fluid {
+  overflow-x: hidden;
 }
 
-.scroll-container {
+/* Navigation */
+.navTags {
+  font-size: 1rem;
+  text-decoration: none;
+  color: #000;
+  padding: 8px 12px;
+  transition: color 0.3s ease;
+}
+
+.navTags:hover {
+  color: #6d2077; /* Purple for hover, replacing red (#ff6666) */
+}
+
+.navTags.active {
+  color: #6d2077; /* Purple for active/selected category */
+  font-weight: 600;
+}
+
+.navTag-content {
   display: flex;
-  overflow-x: auto;
-  gap: 20px;
-  padding: 10px;
-  scrollbar-width: none; /* Firefox */
-  width: 100%; /* Constrain to parent */
-  box-sizing: border-box;
+  align-items: center;
 }
 
-.scroll-container::-webkit-scrollbar {
-  display: none; /* Chrome, Safari */
+.navTag-image {
+  width: 24px; /* Adjust size as needed */
+  height: 24px;
+  object-fit: contain; /* Ensure the image scales properly */
 }
 
-.scroll-container img {
-  width: 100px;
-  height: 100px;
-  object-fit: contain;
-  flex-shrink: 0;
-  background: #f8f8f8;
-  border-radius: 10px;
-  padding: 10px;
-  box-sizing: border-box;
-}
-
-.container {
-  overflow-x: hidden;
-}
-
-body {
-  overflow-x: hidden;
-}
-
+/* Carousel */
 .carousel-container {
   position: relative;
   width: 100%;
-  padding: 10px;
+  padding: 10px 50px;
+  margin: 0 auto;
 }
 
 .carousel-content {
@@ -54,7 +54,19 @@ body {
 
 .carousel-content > div {
   display: flex;
-  transition: transform 0.3s ease; /* Smooth transition */
+  transition: transform 0.3s ease;
+}
+
+.carousel-image {
+  width: 120px;
+  height: 120px;
+  object-fit: contain;
+  flex-shrink: 0;
+  background: #f8f8f8;
+  border-radius: 10px;
+  padding: 10px;
+  margin-right: 10px;
+  cursor: pointer;
 }
 
 .carousel-arrow {
@@ -70,7 +82,7 @@ body {
   position: absolute;
   top: 50%;
   transform: translateY(-50%);
-  z-index: 10;
+  z-Index: 10;
 }
 
 .carousel-arrow:hover:not(:disabled) {
@@ -90,74 +102,267 @@ body {
   right: 10px;
 }
 
-@media (max-width: 576px) {
-  .carousel-arrow-left {
-    left: 5px;
-  }
-  .carousel-arrow-right {
-    right: 5px;
-  }
+/* Product Card */
+.card.out-of-stock {
+  opacity: 0.6;
+  filter: grayscale(80%);
 }
 
-/* CHANGE: Add see-more-link styling */
-.see-more-link {
-  font-size: 1.1rem; /* Slightly smaller than h2, prominent */
-  font-weight: 600; /* Semi-bold for balance */
-  color: #ff6666; /* Light red */
-  text-decoration: underline;
-  cursor: pointer;
-  display: flex;
-  align-items: center; /* Align text and arrow */
+.card.out-of-stock:hover {
+  opacity: 0.8;
 }
 
-.see-more-link:hover {
-  color: #cc5252; /* Darker red on hover */
-  text-decoration: none; /* Remove underline */
+.card {
+  border: 1px solid #ddd;
+  border-radius: 5px;
+  overflow: hidden;
 }
 
-.see-more-link .fas {
-  font-size: 0.85rem; /* Slightly larger arrow */
-  margin-left: 10px; /* Increased gap */
+.card-body {
+  padding: 15px;
 }
 
-/* Ensure responsiveness */
-@media (max-width: 768px) {
-  .d-flex.justify-content-between {
-    flex-direction: row;
-    justify-content: space-between;
-    gap: 10px; /* Prevent crowding */
-  }
+.card-title {
+  font-size: 1.1rem;
+  margin-bottom: 8px;
+}
+
+.card-text {
+  font-size: 0.9rem;
+  margin-bottom: 8px;
 }
 
 .button-container {
   display: flex;
   justify-content: center;
   align-items: center;
-  width: 100%; /* Ensure the container takes full width */
-  min-height: 40px; /* Prevent height changes */
-  margin-top: 10px; /* Consistent spacing */
+  width: 100%;
+  min-height: 40px;
+  margin-top: 10px;
 }
 
 .button-container .btn-primary {
-  width: 120px; /* Fixed width for Add to Cart button */
+  width: 120px;
   text-align: center;
+  font-size: 0.9rem;
 }
 
 .button-container .d-flex {
-  width: 120px; /* Match the width of Add to Cart button */
-  justify-content: space-between; /* Spread out the - quantity + */
+  width: 120px;
+  justify-content: space-between;
 }
 
 .button-container .btn-sm {
-  width: 30px; /* Fixed width for + and - buttons */
+  width: 30px;
   height: 30px;
   padding: 0;
   display: flex;
   align-items: center;
   justify-content: center;
+  font-size: 0.9rem;
 }
 
 .button-container .mx-2 {
-  width: 30px; /* Fixed width for quantity text */
+  width: 30px;
   text-align: center;
+}
+
+/* See More Link */
+.see-more-link {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #ff6666;
+  text-decoration: underline;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+}
+
+.see-more-link:hover {
+  color: #cc5252;
+  text-decoration: none;
+}
+
+.see-more-link .fas {
+  font-size: 0.85rem;
+  margin-left: 10px;
+}
+
+/* Modal */
+.modal-content {
+  width: 90%;
+  max-width: 500px;
+  margin: 10% auto;
+}
+
+.modal-header, .modal-footer {
+  padding: 10px 15px;
+}
+
+/* Responsive Design */
+@media (max-width: 992px) {
+  .container-fluid.shadow-lg {
+    padding: 10px 15px;
+  }
+
+  .col-lg-10 {
+    flex: 0 0 100%;
+    max-width: 100%;
+  }
+
+  .col-lg-1 {
+    display: none;
+  }
+
+  .navTags {
+    font-size: 0.95rem;
+    padding: 6px 10px;
+  }
+
+  .navTag-image {
+    width: 20px;
+    height: 20px;
+  }
+
+  .carousel-container {
+    padding: 10px 40px;
+  }
+
+  .carousel-image {
+    width: 110px;
+    height: 110px;
+    margin-right: 8px;
+    padding: 8px;
+  }
+
+  .carousel-arrow {
+    width: 35px;
+    height: 35px;
+  }
+}
+
+@media (max-width: 768px) {
+  .navTags {
+    font-size: 0.9rem;
+    padding: 5px 8px;
+  }
+
+  .navTag-image {
+    width: 18px;
+    height: 18px;
+  }
+
+  .carousel-container {
+    padding: 10px 30px;
+  }
+
+  .carousel-image {
+    width: 100px;
+    height: 100px;
+    margin-right: 6px;
+  }
+
+  .carousel-arrow {
+    width: 30px;
+    height: 30px;
+  }
+
+  .carousel-arrow-left {
+    left: 5px;
+  }
+
+  .carousel-arrow-right {
+    right: 5px;
+  }
+
+  .card-img-top {
+    height: 180px;
+  }
+
+  .card-title {
+    font-size: 1rem;
+  }
+
+  .card-text {
+    font-size: 0.85rem;
+  }
+
+  .button-container .btn-primary {
+    width: 100px;
+    font-size: 0.85rem;
+  }
+
+  .button-container .d-flex {
+    width: 100px;
+  }
+
+  .button-container .btn-sm {
+    width: 25px;
+    height: 25px;
+    font-size: 0.8rem;
+  }
+
+  .button-container .mx-2 {
+    width: 25px;
+  }
+
+  .modal-content {
+    margin: 15% auto;
+    padding: 15px;
+  }
+
+  .modal-body img {
+    height: 180px;
+  }
+}
+
+@media (max-width: 576px) {
+  .navTags {
+    font-size: 0.85rem;
+    padding: 4px 6px;
+  }
+
+  .navTag-image {
+    width: 16px;
+    height: 16px;
+  }
+
+  .carousel-image {
+    width: 90px;
+    height: 90px;
+    margin-right: 5px;
+  }
+
+  .carousel-arrow {
+    width: 25px;
+    height: 25px;
+  }
+
+  .card-img-top {
+    height: 150px;
+  }
+
+  .card-title {
+    font-size: 0.9rem;
+  }
+
+  .card-text {
+    font-size: 0.8rem;
+  }
+
+  h2 {
+    font-size: 1.2rem;
+  }
+
+  .see-more-link {
+    font-size: 0.9rem;
+  }
+
+  .see-more-link .fas {
+    font-size: 0.7rem;
+    margin-left: 8px;
+  }
+  .navText{
+    color: #586274;
+  }
 }

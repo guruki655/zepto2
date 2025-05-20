@@ -33,7 +33,7 @@ function Footer() {
         <div className="row">
           {/* Company Information */}
           <div className="col-lg-3 col-md-6 mb-4">
-            <h5 classNahrefme="mb-3">Company</h5>
+            <h5 className="mb-3">Company</h5>
          <ul className='list-unstyled'>
   <li><a href="https://www.zeptonow.com/customer-support" className="text-white text-decoration-none">Customer Support</a></li>
   <li><a href="https://zepto.talentrecruit.com/career-page" className="text-white text-decoration-none">Careers</a></li>

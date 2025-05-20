@@ -1,7 +1,6 @@
 import React, { useState, useEffect, useRef } from 'react';
 import axios from 'axios';
-import { useNavigate } from 'react-router-dom';
-import { Link } from 'react-router-dom';
+import { useNavigate, Link } from 'react-router-dom';
 import zeptoVeg from '../images/zeptoVeggie.png';
 import ZeptoPet from '../images/zeptoPetCare.png';
 import ZeptoBaby from '../images/zeptoBabyCare.png';
@@ -22,6 +21,27 @@ import zeptoBanner from '../images/zeptoHomeBanner.webp';
 import zeptoEleBanner from '../images/zeptoEleBanner.webp';
 import zeptoBeautyBanner from '../images/zeptoBeautyBanner.webp';
 import { useCart } from '../contexts/cartContext';
+import cafe1 from '../images/cafe11.png'
+import toys11 from '../images/toys11.png'
+import fruits11 from '../images/fruits11.png'
+import baby11 from '../images/baby11.png'
+import all22 from '../images/all22.png'
+import home22 from '../images/home22.png'
+import deal22 from '../images/deal22.png'
+import elec22 from '../images/elec22.png'
+import mo22 from '../images/mo22.png'
+import beauty22 from '../images/beauty22.png'
+import fash22 from '../images/fash22.png'
+import allp from '../images/allp.png'
+import babyp from '../images/babyp.png'
+import beautyp from '../images/beautyp.png'
+import dealp from '../images/dealp.png'
+import elecppp from '../images/elecppp.png'
+import mobp from '../images/mobp.png'
+import toypp from '../images/toypp.png'
+import homepp from '../images/homepp.png'
+import fashp from '../images/fashp.png'
+import fruitspp from '../images/fruitspp.png'
 import '../styles/home.css';
 
 function Home() {
@@ -66,10 +86,10 @@ function Home() {
     { src: zeptoMakeup, name: 'Makeup' },
   ];
 
-  const imageWidth = 100;
-  const marginRight = 20;
+  const imageWidth = 120; // Increased to match Zepto's larger icons
+  const marginRight = 10; // Reduced for compact layout
   const scrollAmount = imageWidth + marginRight;
-  const visibleImages = 6;
+  const visibleImages = 5; // Adjusted to fit larger images
   const loopOffset = categoryImages.length * scrollAmount;
 
   const extendedImages = [
@@ -104,35 +124,17 @@ function Home() {
     } else if (scrollPosition >= loopOffset) {
       setScrollPosition(scrollPosition - loopOffset);
     }
-  }, [scrollPosition]);
+  }, [scrollPosition, loopOffset]);
 
-  const electronicProducts = products.filter(
-    (product) => product.ProductType === 'Electronics'
-  );
-  const babyProducts = products.filter(
-    (product) => product.ProductType === 'Baby'
-  );
-  const toyProducts = products.filter(
-    (product) => product.ProductType === 'Toys'
-  );
-  const fashionProducts = products.filter(
-    (product) => product.ProductType === 'Fashion'
-  );
-  const cafeProducts = products.filter(
-    (product) => product.ProductType === 'Cafe'
-  );
-  const homeProducts = products.filter(
-    (product) => product.ProductType === 'Home'
-  );
-  const mobileProducts = products.filter(
-    (product) => product.ProductType === 'Mobile'
-  );
-  const beautyProducts = products.filter(
-    (product) => product.ProductType === 'Beauty'
-  );
-  const makeupProducts = products.filter(
-    (product) => product.ProductType === 'Makeup'
-  );
+  const electronicProducts = products.filter((product) => product.ProductType === 'Electronics');
+  const babyProducts = products.filter((product) => product.ProductType === 'Baby');
+  const toyProducts = products.filter((product) => product.ProductType === 'Toys');
+  const fashionProducts = products.filter((product) => product.ProductType === 'Fashion');
+  const cafeProducts = products.filter((product) => product.ProductType === 'Cafe');
+  const homeProducts = products.filter((product) => product.ProductType === 'Home');
+  const mobileProducts = products.filter((product) => product.ProductType === 'Mobile');
+  const beautyProducts = products.filter((product) => product.ProductType === 'Beauty');
+  const makeupProducts = products.filter((product) => product.ProductType === 'Makeup');
   const fruitsAndVegetablesProducts = products.filter(
     (product) => product.ProductType === 'FruitsandVegetables'
   );
@@ -146,9 +148,9 @@ function Home() {
 
     return (
       <div
-        className="col-lg-3"
-        onClick={() => setSelectedProduct(product)}
+        className="col-lg-3 col-md-4 col-sm-6 mb-4"
         style={{ cursor: 'pointer' }}
+        onClick={() => setSelectedProduct(product)} // Added to open the modal
       >
         <div className={`card h-100 ${isOutOfStock ? 'out-of-stock' : ''}`}>
           <img
@@ -157,11 +159,11 @@ function Home() {
             alt={product.ProductName}
             style={{ height: '200px', objectFit: 'cover' }}
           />
-          <div className="card-body">
-            <h5 className="card-title">{product.ProductName}</h5>
+          <div className="card-body d-flex flex-column">
+            <h5 className="card-title text-truncate">{product.ProductName}</h5>
             <p className="card-text">Brand: {product.ProductBrand}</p>
             <p className="card-text">Price: ₹{product.ProductPrice}</p>
-            <div className="card-text">
+            <div className="card-text mb-2">
               Rating:{' '}
               {Array.from({ length: Math.floor(product.ProductRating || 1) }, (_, i) => (
                 <i key={i} className="fas fa-star text-warning" />
@@ -180,9 +182,9 @@ function Home() {
               selectedCategory === 'Electronics' ||
               selectedCategory === 'FruitsandVegetables' ||
               selectedCategory === 'All') && (
-              <div className="button-container">
+              <div className="button-container mt-auto">
                 {isOutOfStock ? (
-                  <p className="text-danger mt-2">Out of Stock</p>
+                  <p className="text-danger mt-2 mb-0">Out of Stock</p>
                 ) : cartProduct ? (
                   <div className="d-flex align-items-center justify-content-center">
                     <button
@@ -245,15 +247,15 @@ function Home() {
           className="modal-content"
           style={{
             backgroundColor: 'white',
-            margin: '15% auto',
+            margin: '10% auto',
             padding: '20px',
-            width: '70%',
+            width: '90%',
             maxWidth: '500px',
             borderRadius: '5px',
           }}
         >
-          <div className="modal-header">
-            <h5>{product.ProductName}</h5>
+          <div className="modal-header d-flex justify-content-between align-items-center">
+            <h5 className="mb-0">{product.ProductName}</h5>
             <button className="btn btn-close" onClick={onClose}></button>
           </div>
           <div className="modal-body">
@@ -308,9 +310,9 @@ function Home() {
               <strong>Material:</strong> {product.ProductMaterial}
             </p>
           </div>
-          <div className="modal-footer">
+          <div className="modal-footer d-flex justify-content-between">
             {isOutOfStock ? (
-              <p className="text-danger">Out of Stock</p>
+              <p className="text-danger mb-0">Out of Stock</p>
             ) : (
               <button
                 className="btn btn-primary"
@@ -331,191 +333,155 @@ function Home() {
     );
   };
 
+  const handleCategoryClick = (category) => {
+    setSelectedCategory(category);
+  };
+
   return (
-    <div className="shadow-lg">
-      <div className="container-fluid shadow-lg">
+    <div className="container-fluid">
+      <div className="container-fluid shadow-lg  mb-4">
         <div className="row">
           <div className="col-lg-1"></div>
-          <div className="col-lg-9 d-flex justify-content-evenly">
-            <a href="#" className="navTags" onClick={() => setSelectedCategory('All')}>
-              All
-            </a>
-            <a href="#" className="navTags" onClick={() => setSelectedCategory('Cafe')}>
-              Cafe
-            </a>
-            <a href="#" className="navTags" onClick={() => setSelectedCategory('Home')}>
-              Home
-            </a>
-            <a href="#" className="navTags" onClick={() => setSelectedCategory('Toys')}>
-              Toys
-            </a>
-            <a href="#" className="navTags" onClick={() => setSelectedCategory('FruitsandVegetables')}>
-              Fruits & Vegetables
-            </a>
-            <a href="#" className="navTags" onClick={() => setSelectedCategory('Electronics')}>
-              Electronics
-            </a>
-            <a href="#" className="navTags" onClick={() => setSelectedCategory('Mobiles')}>
-              Mobiles
-            </a>
-            <a href="#" className="navTags" onClick={() => setSelectedCategory('Beauty')}>
-              Beauty
-            </a>
-            <a href="#" className="navTags" onClick={() => setSelectedCategory('Fashion')}>
-              Fashion
-            </a>
-            <a href="#" className="navTags" onClick={() => setSelectedCategory('Deal')}>
-              Deal Zone
-            </a>
-            <a href="#" className="navTags" onClick={() => setSelectedCategory('Baby')}>
-              Baby Store
-            </a>
-          </div>
+<div className="col-lg-10 col-12 d-flex flex-wrap justify-content-evenly">
+  {[
+    { name: 'All', icon: all22, selectedIcon: allp },
+    { name: 'Cafe', icon: cafe1, selectedIcon: cafe1 },
+    { name: 'Home', icon: home22, selectedIcon: homepp },
+    { name: 'Toys', icon: toys11, selectedIcon: toypp },
+    { name: 'Fruits & Vegetables', icon: fruits11, selectedIcon: fruitspp },
+    { name: 'Electronics', icon: elec22, selectedIcon: elecppp },
+    { name: 'Mobiles', icon: mo22, selectedIcon: mobp },
+    { name: 'Beauty', icon: beauty22, selectedIcon: beautyp },
+    { name: 'Fashion', icon: fash22, selectedIcon: fashp },
+    { name: 'Deal Zone', icon: deal22, selectedIcon: dealp },
+    { name: 'Baby Store', icon: baby11, selectedIcon: babyp }
+  ].map((category) => {
+    const isSelected = selectedCategory === category.name.replace(/ &/g, '');
+    return (
+      <a
+        key={category.name}
+        href="#"
+        className={`navTags mx-2 my-1 d-flex flex-column align-items-center ${isSelected ? 'active' : ''}`}
+        onClick={() => handleCategoryClick(category.name.replace(/ &/g, ''))}
+      >
+        <img
+          src={isSelected ? category.selectedIcon : category.icon}
+          alt={category.name}
+          className="category-icon mb-1"
+          style={{ width: '24px', height: '24px' }}
+        />
+        <span style={{ color: isSelected ? undefined : '#586274' }}>{category.name}</span>
+      </a>
+    );
+  })}
+</div>
+
+
+          <div className="col-lg-1"></div>
         </div>
       </div>
 
-      <div className="row">
+      <div className="container">
         {selectedCategory === 'All' && (
-          <div className="col-lg-12">
-            <div className="carousel-container" style={{ position: 'relative', padding: '10px' }}>
-              <button
-                className="carousel-arrow carousel-arrow-left"
-                onClick={handlePrev}
-                style={{
-                  position: 'absolute',
-                  left: '10px',
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  background: '#fff',
-                  border: '1px solid #ddd',
-                  borderRadius: '50%',
-                  width: '40px',
-                  height: '40px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  cursor: 'pointer',
-                  zIndex: 10,
-                }}
-              >
-                <i className="fas fa-chevron-left"></i>
-              </button>
-              <div
-                className="carousel-content"
-                style={{
-                  overflow: 'hidden',
-                  width: '100%',
-                }}
-              >
-                <div
-                  ref={carouselRef}
-                  style={{
-                    display: 'flex',
-                    transform: `translateX(-${scrollPosition}px)`,
-                    transition: 'transform 0.3s ease',
-                  }}
+          <div className="row">
+            <div className="col-12">
+              <div className="carousel-container">
+                <button
+                  className="carousel-arrow carousel-arrow-left"
+                  onClick={handlePrev}
                 >
-                  {extendedImages.map((category, index) => (
-                    <img
-                      key={`${category.name}-${index}`}
-                      src={category.src}
-                      alt={category.name}
-                      style={{
-                        width: '100px',
-                        height: '100px',
-                        marginRight: '20px',
-                        objectFit: 'contain',
-                        cursor: 'pointer',
-                        flexShrink: 0,
-                      }}
-                      onClick={() => navigate(`/category/${category.name}`)}
-                    />
-                  ))}
+                  <i className="fas fa-chevron-left"></i>
+                </button>
+                <div className="carousel-content">
+                  <div
+                    ref={carouselRef}
+                    style={{
+                      display: 'flex',
+                      transform: `translateX(-${scrollPosition}px)`,
+                      transition: 'transform 0.3s ease',
+                    }}
+                  >
+                    {extendedImages.map((category, index) => (
+                      <img
+                        key={`${category.name}-${index}`}
+                        src={category.src}
+                        alt={category.name}
+                        className="carousel-image"
+                        onClick={() => navigate(`/category/${category.name}`)}
+                      />
+                    ))}
+                  </div>
                 </div>
+                <button
+                  className="carousel-arrow carousel-arrow-right"
+                  onClick={handleNext}
+                >
+                  <i className="fas fa-chevron-right"></i>
+                </button>
               </div>
-              <button
-                className="carousel-arrow carousel-arrow-right"
-                onClick={handleNext}
-                style={{
-                  position: 'absolute',
-                  right: '10px',
-                  top: '50%',
-                  transform: 'translateY(-50%)',
-                  background: '#fff',
-                  border: '1px solid #ddd',
-                  borderRadius: '50%',
-                  width: '40px',
-                  height: '40px',
-                  display: 'flex',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                  cursor: 'pointer',
-                  zIndex: 10,
-                }}
-              >
-                <i className="fas fa-chevron-right"></i>
-              </button>
-            </div>
-            <div className="col-lg-12">
- <Link to="/paancorner">
-        <img className="mt-5" src={zeptoBanner} alt="banner" style={{ cursor: 'pointer' }} />
-      </Link>            </div>
-            <div className="container-fluid mt-4 mb-4">
-              <div className="row">
-                <div className="col-lg-6">
+              <Link to="/paancorner">
+                <img
+                  src={zeptoBanner}
+                  alt="banner"
+                  className="img-fluid mt-4 mb-4"
+                  style={{ width: '100%' }}
+                />
+              </Link>
+              <div className="row mb-4">
+                <div className="col-md-6 mb-3">
                   <img
                     onClick={() => navigate('/category/Electronics')}
                     src={zeptoEleBanner}
-                    alt="banner"
-                    className="img-fluid"
-                    style={{ width: '100%', height: 'auto' }}
+                    alt="Electronics Banner"
+                    className="img-fluid "
+                    style={{ width: '100%' }}
                   />
                 </div>
-                <div className="col-lg-6">
+                <div className="col-md-6 mb-3">
                   <img
                     onClick={() => navigate('/category/Makeup')}
                     src={zeptoBeautyBanner}
-                    alt="banner"
+                    alt="Beauty Banner"
                     className="img-fluid"
-                    style={{ width: '100%', height: 'auto' }}
+                    style={{ width: '100%' }}
                   />
                 </div>
               </div>
-            </div>
 
-            <div className="col-lg-12 mb-4">
-              <div className="d-flex justify-content-between align-items-center">
-                <h2>Fruits and Vegetables</h2>
-                {fruitsAndVegetablesProducts.length > 4 && (
-                  <a
-                    href="#"
-                    className="see-more-link"
-                    onClick={() => navigate('/category/FruitsandVegetables')}
-                  >
-                    See More <i className="fas fa-chevron-right ms-2" />
-                  </a>
-                )}
+              <div className="mb-4">
+                <div className="d-flex justify-content-between align-items-center mb-3">
+                  <h2 className="mb-0">Fruits and Vegetables</h2>
+                  {fruitsAndVegetablesProducts.length > 4 && (
+                    <a
+                      href="#"
+                      className="see-more-link"
+                      onClick={() => navigate('/category/FruitsandVegetables')}
+                    >
+                      See More <i className="fas fa-chevron-right ms-2" />
+                    </a>
+                  )}
+                </div>
+                <div className="row">
+                  {fruitsAndVegetablesProducts.length > 0 ? (
+                    fruitsAndVegetablesProducts.slice(0, 4).map((product) => (
+                      <ProductCard key={product._id} product={product} />
+                    ))
+                  ) : (
+                    <div className="col-12">
+                      <p>No products available.</p>
+                    </div>
+                  )}
+                </div>
               </div>
             </div>
-            {products.length > 0 ? (
-              <div className="row">
-                {fruitsAndVegetablesProducts.slice(0, 4).map((product) => (
-                  <ProductCard key={product._id} product={product} />
-                ))}
-              </div>
-            ) : (
-              <div className="col-lg-12">
-                <p>No products available.</p>
-              </div>
-            )}
           </div>
         )}
 
         {(selectedCategory === 'Cafe' || selectedCategory === 'All') && (
-          <>
-            <div className="col-lg-12 mb-4">
-              <div className="d-flex justify-content-between align-items-center">
-                <h2>Cafe Products</h2>
+          <div className="row">
+            <div className="col-12 mb-4">
+              <div className="d-flex justify-content-between align-items-center mb-3">
+                <h2 className="mb-0">Cafe Products</h2>
                 {cafeProducts.length > 4 && (
                   <a
                     href="#"
@@ -526,83 +492,83 @@ function Home() {
                   </a>
                 )}
               </div>
-            </div>
-            {cafeProducts.length > 0 ? (
               <div className="row">
-                {cafeProducts.slice(0, 4).map((product) => (
-                  <ProductCard key={product._id} product={product} />
-                ))}
+                {cafeProducts.length > 0 ? (
+                  cafeProducts.slice(0, 4).map((product) => (
+                    <ProductCard key={product._id} product={product} />
+                  ))
+                ) : (
+                  <div className="col-12">
+                    <p>No cafe products available.</p>
+                  </div>
+                )}
               </div>
-            ) : (
-              <div className="col-lg-12">
-                <p>No cafe products available.</p>
-              </div>
-            )}
-          </>
+            </div>
+          </div>
         )}
 
         {selectedCategory === 'Home' && (
-          <>
-            <div className="col-lg-12 mb-4">
-              <h2>Home Products</h2>
-            </div>
-            {homeProducts.length > 0 ? (
+          <div className="row">
+            <div className="col-12 mb-4">
+              <h2 className="mb-3">Home Products</h2>
               <div className="row">
-                {homeProducts.map((product) => (
-                  <ProductCard key={product._id} product={product} />
-                ))}
+                {homeProducts.length > 0 ? (
+                  homeProducts.map((product) => (
+                    <ProductCard key={product._id} product={product} />
+                  ))
+                ) : (
+                  <div className="col-12">
+                    <p>No home products available.</p>
+                  </div>
+                )}
               </div>
-            ) : (
-              <div className="col-lg-12">
-                <p>No home products available.</p>
-              </div>
-            )}
-          </>
+            </div>
+          </div>
         )}
 
         {selectedCategory === 'Toys' && (
-          <>
-            <div className="col-lg-12 mb-4">
-              <h2>Toy Products</h2>
-            </div>
-            {toyProducts.length > 0 ? (
+          <div className="row">
+            <div className="col-12 mb-4">
+              <h2 className="mb-3">Toy Products</h2>
               <div className="row">
-                {toyProducts.map((product) => (
-                  <ProductCard key={product._id} product={product} />
-                ))}
+                {toyProducts.length > 0 ? (
+                  toyProducts.map((product) => (
+                    <ProductCard key={product._id} product={product} />
+                  ))
+                ) : (
+                  <div className="col-12">
+                    <p>No toy products available.</p>
+                  </div>
+                )}
               </div>
-            ) : (
-              <div className="col-lg-12">
-                <p>No toy products available.</p>
-              </div>
-            )}
-          </>
+            </div>
+          </div>
         )}
 
         {selectedCategory === 'FruitsandVegetables' && (
-          <>
-            <div className="col-lg-12 mb-4">
-              <h2>Fruits and Vegetables</h2>
-            </div>
-            {fruitsAndVegetablesProducts.length > 0 ? (
+          <div className="row">
+            <div className="col-12 mb-4">
+              <h2 className="mb-3">Fruits and Vegetables</h2>
               <div className="row">
-                {fruitsAndVegetablesProducts.map((product) => (
-                  <ProductCard key={product._id} product={product} />
-                ))}
+                {fruitsAndVegetablesProducts.length > 0 ? (
+                  fruitsAndVegetablesProducts.map((product) => (
+                    <ProductCard key={product._id} product={product} />
+                  ))
+                ) : (
+                  <div className="col-12">
+                    <p>No Fruits and Vegetables products available.</p>
+                  </div>
+                )}
               </div>
-            ) : (
-              <div className="col-lg-12">
-                <p>No Fruits and Vegetables products available.</p>
-              </div>
-            )}
-          </>
+            </div>
+          </div>
         )}
 
         {(selectedCategory === 'Electronics' || selectedCategory === 'All') && (
-          <>
-            <div className= "col-lg-12 mb-4">
-              <div className="d-flex justify-content-between align-items-center">
-                <h2>Electronics</h2>
+          <div className="row">
+            <div className="col-12 mb-4">
+              <div className="d-flex justify-content-between align-items-center mb-3">
+                <h2 className="mb-0">Electronics</h2>
                 {electronicProducts.length > 4 && (
                   <a
                     href="#"
@@ -613,107 +579,112 @@ function Home() {
                   </a>
                 )}
               </div>
-            </div>
-            {electronicProducts.length > 0 ? (
               <div className="row">
-                {electronicProducts.slice(0, 4).map((product) => (
-                  <ProductCard key={product._id} product={product} />
-                ))}
+                {electronicProducts.length > 0 ? (
+                  electronicProducts.slice(0, 4).map((product) => (
+                    <ProductCard key={product._id} product={product} />
+                  ))
+                ) : (
+                  <div className="col-12">
+                    <p>No electronics products available.</p>
+                  </div>
+                )}
               </div>
-            ) : (
-              <div className="col-lg-12">
-                <p>No electronics products available.</p>
-              </div>
-            )}
-          </>
+            </div>
+          </div>
         )}
 
         {selectedCategory === 'Mobiles' && (
-          <>
-            <div className="col-lg-12 mb-4">
-              <h2>Mobiles</h2>
-            </div>
-            {mobileProducts.length > 0 ? (
+          <div className="row">
+            <div className="col-12 mb-4">
+              <h2 className="mb-3">Mobiles</h2>
               <div className="row">
-                {mobileProducts.map((product) => (
-                  <ProductCard key={product._id} product={product} />
-                ))}
+                {mobileProducts.length > 0 ? (
+                  mobileProducts.map((product) => (
+                    <ProductCard key={product._id} product={product} />
+                  ))
+                ) : (
+                  <div className="col-12">
+                    <p>No mobile products available.</p>
+                  </div>
+                )}
               </div>
-            ) : (
-              <div className="col-lg-12">
-                <p>No mobile products available.</p>
-              </div>
-            )}
-          </>
+            </div>
+          </div>
         )}
 
         {selectedCategory === 'Beauty' && (
-          <>
-            <div className="col-lg-12 mb-4">
-              <h2>Beauty</h2>
-            </div>
-            {beautyProducts.length > 0 ? (
+          <div className="row">
+            <div className="col-12 mb-4">
+              <h2 className="mb-3">Beauty</h2>
               <div className="row">
-                {beautyProducts.map((product) => (
-                  <ProductCard key={product._id} product={product} />
-                ))}
+                {beautyProducts.length > 0 ? (
+                  beautyProducts.map((product) => (
+                    <ProductCard key={product._id} product={product} />
+                  ))
+                ) : (
+                  <div className ="col-12">
+                    <p>No beauty products available.</p>
+                  </div>
+                )}
               </div>
-            ) : (
-              <div className="col-lg-12">
-                <p>No beauty products available.</p>
-              </div>
-            )}
-          </>
+            </div>
+          </div>
         )}
 
         {selectedCategory === 'Fashion' && (
-          <>
-            <div className="col-lg-12 mb-4">
-              <h2>Fashion Products</h2>
-            </div>
-            {fashionProducts.length > 0 ? (
+          <div className="row">
+            <div className="col-12 mb-4">
+              <h2 className="mb-3">Fashion Products</h2>
               <div className="row">
-                {fashionProducts.map((product) => (
-                  <ProductCard key={product._id} product={product} />
-                ))}
+                {fashionProducts.length > 0 ? (
+                  fashionProducts.map((product) => (
+                    <ProductCard key={product._id} product={product} />
+                  ))
+                ) : (
+                  <div className="col-12">
+                    <p>No fashion products available.</p>
+                  </div>
+                )}
               </div>
-            ) : (
-              <div className="col-lg-12">
-                <p>No fashion products available.</p>
-              </div>
-            )}
-          </>
+            </div>
+          </div>
         )}
 
         {selectedCategory === 'Deal' && (
-          <div className="col-lg-12">
-            <p>Deal</p>
+          <div className="row">
+            <div className="col-12">
+              <p>Deal</p>
+            </div>
           </div>
         )}
 
         {(selectedCategory === 'Baby' || selectedCategory === 'All') && (
-          <>
-            <div className="col-lg-12 mb-4">
-              <h2>Baby Products</h2>
-            </div>
-            {babyProducts.length > 0 ? (
+          <div className="row">
+            <div className="col-12 mb-4">
+                            <div className="d-flex justify-content-between align-items-center mb-3">
+
+              <h2 className="mb-3">Baby Products</h2>
+              </div>
               <div className="row">
-                {babyProducts.map((product) => (
-                  <ProductCard key={product._id} product={product} />
-                ))}
+                {babyProducts.length > 0 ? (
+                  babyProducts.map((product) => (
+                    <ProductCard key={product._id} product={product} />
+                  ))
+                ) : (
+                  <div className="col-12">
+                    <p>No baby products available.</p>
+                  </div>
+                )}
               </div>
-            ) : (
-              <div className="col-lg-12">
-                <p>No baby products available.</p>
-              </div>
-            )}
-          </>
+            </div>
+          </div>
+        )}
+
+        {selectedProduct && (
+          <ProductModal product={selectedProduct} onClose={() => setSelectedProduct(null)} />
         )}
       </div>
-
-      {selectedProduct && (
-        <ProductModal product={selectedProduct} onClose={() => setSelectedProduct(null)} />
-      )}
     </div>
   );
 }
