@@ -135,9 +135,11 @@ function Home() {
   const mobileProducts = products.filter((product) => product.ProductType === 'Mobile');
   const beautyProducts = products.filter((product) => product.ProductType === 'Beauty');
   const makeupProducts = products.filter((product) => product.ProductType === 'Makeup');
-  const fruitsAndVegetablesProducts = products.filter(
-    (product) => product.ProductType === 'FruitsandVegetables'
-  );
+  const fruitsAndVegetablesProducts = products.filter((product) => product.ProductType === "FruitsandVegetables");
+
+      console.log(fruitsAndVegetablesProducts.length,"fruitsAndVegetablesProducts")
+      console.log(electronicProducts.length,"Electronics")
+
 
   console.log('Cafe Products Count:', cafeProducts.length);
 
@@ -348,7 +350,7 @@ function Home() {
     { name: 'Cafe', icon: cafe1, selectedIcon: cafe1 },
     { name: 'Home', icon: home22, selectedIcon: homepp },
     { name: 'Toys', icon: toys11, selectedIcon: toypp },
-    { name: 'Fruits & Vegetables', icon: fruits11, selectedIcon: fruitspp },
+    { name: 'FruitsandVegetables', icon: fruits11, selectedIcon: fruitspp },
     { name: 'Electronics', icon: elec22, selectedIcon: elecppp },
     { name: 'Mobiles', icon: mo22, selectedIcon: mobp },
     { name: 'Beauty', icon: beauty22, selectedIcon: beautyp },
