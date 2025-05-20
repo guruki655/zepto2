@@ -49,7 +49,7 @@ function Register() {
         newErrors.email = 'Email is required.';
         isValid = false;
       } else {
-        const emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}$/;
+const emailRegex = /^[a-zA-Z0-9]+([._%+-]?[a-zA-Z0-9]+)*@[a-zA-Z0-9-]+\.(com|in|org|net)$/;
         if (!emailRegex.test(formData.email)) {
           newErrors.email = 'Please enter a valid email address.';
           isValid = false;
